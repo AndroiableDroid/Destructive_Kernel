@@ -24,3 +24,6 @@ config LAZYPLUG
 	    Based on IntelliPlug, this HotPlug uses a Conservative Approach
 	    towards HotPlugging. This HotPlug is Developed by arter97 and 
 	    Enhanced by fraps129.
+config STATE_HELPER
+        bool "State Helper"
+	    depends on STATE_NOTIFIER
