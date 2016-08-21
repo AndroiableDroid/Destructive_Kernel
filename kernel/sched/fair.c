@@ -1271,7 +1271,7 @@ unsigned int max_task_load(void)
 }
 
 /* Use this knob to turn on or off HMP-aware task placement logic */
-unsigned int __read_mostly sched_enable_hmp = 0;
+unsigned int __read_mostly sched_enable_hmp = 1;
 
 /* A cpu can no longer accomodate more tasks if:
  *
@@ -1292,7 +1292,7 @@ unsigned int __read_mostly sysctl_sched_mostly_idle_nr_run = 3;
  * Control whether or not individual CPU power consumption is used to
  * guide task placement.
  */
-unsigned int __read_mostly sched_enable_power_aware = 0;
+unsigned int __read_mostly sched_enable_power_aware = 1;
 
 /*
  * This specifies the maximum percent power difference between 2
@@ -1360,8 +1360,8 @@ unsigned int __read_mostly sysctl_sched_downmigrate_pct = 60;
  * Tasks whose nice value is > sysctl_sched_upmigrate_min_nice are never
  * considered as "big" tasks.
  */
-static int __read_mostly sched_upmigrate_min_nice = 15;
-int __read_mostly sysctl_sched_upmigrate_min_nice = 15;
+static int __read_mostly sched_upmigrate_min_nice = 9;
+int __read_mostly sysctl_sched_upmigrate_min_nice = 9;
 
 /*
  * Tunable to govern scheduler wakeup placement CPU selection
@@ -2506,7 +2506,7 @@ static inline int nr_big_tasks(struct rq *rq)
 
 #else	/* CONFIG_SCHED_HMP */
 
-#define sched_enable_power_aware 0
+#define sched_enable_power_aware 1
 
 static inline int select_best_cpu(struct task_struct *p, int target, int reason)
 {
