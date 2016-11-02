@@ -744,10 +744,13 @@ const char * const vmstat_text[] = {
 	"nr_free_cma",
 	"nr_swapcache",
 
-	/* enum writeback_stat_item counters */
+#ifdef CONFIG_UKSM
+	"nr_uksm_zero_pages",
+#endif
 	"nr_dirty_threshold",
 	"nr_dirty_background_threshold",
 
+        /* enum writeback_stat_item counters */
 #ifdef CONFIG_VM_EVENT_COUNTERS
 	"pgpgin",
 	"pgpgout",
