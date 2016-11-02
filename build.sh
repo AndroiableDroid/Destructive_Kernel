@@ -17,7 +17,8 @@
 # Please maintain this if you use this script or any part of it
 #
 KERNEL_DIR=$PWD
-KERN_IMG=$KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb
+KERN_IMG=$KERNEL_DIR/arch/arm64/boot/Image
+DTBTOOL=$KERNEL_DIR/tools/dtbToolCM
 BUILD_START=$(date +"%s")
 blue='\033[0;34m'
 cyan='\033[0;36m'
@@ -29,32 +30,31 @@ purple='\e[0;35m'
 white='\e[0;37m'
 DEVICE="LS-5015"
 J="-j$(grep -c ^processor /proc/cpuinfo)"
-rm -rf $KERNEL_DIR/out
-mkdir $KERNEL_DIR/out
+make $J clean mrproper
 
 # Get Toolchain
 
-UBER=$KERNEL_DIR/../uber
+Toolchain=$KERNEL_DIR/../Toolchain
 
 function TC() {
 
-if [[ -d ${UBER} ]]; then
-	if [[ -d ${UBER}/.git ]]; then
-			cd ${UBER}
+if [[ -d ${Toolchain} ]]; then
+	if [[ -d ${Toolchain}/.git ]]; then
+			cd ${Toolchain}
 			git fetch origin
                         git reset --hard origin/master
                         git clean -fxd > /dev/null 2>&1
                         cd ${KERNEL_DIR}
 	else
-		rm -rf ${UBER}
+		rm -rf ${Toolchain}
 	fi
 else
-	git clone https://bitbucket.org/UBERTC/aarch64-linux-android-4.9-kernel.git $UBER
+	git clone https://github.com/AndroiableDroid/aarch64-linux-kernel-linaro-7.x.git $Toolchain
 fi
 }
 
 # Modify the following variable if you want to build
-export CROSS_COMPILE=$UBER/bin/aarch64-linux-android-
+export CROSS_COMPILE=$Toolchain/bin/aarch64-linaro-linux-gnu-
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER="Faraz"
@@ -72,12 +72,14 @@ echo "             Compiling Nichrome kernel        "
 echo -e "****************************************************"
 echo -e "$nocol"
 rm -f $KERN_IMG
-make O=out test01a_msm_defconfig
-make O=out $J
+make test01a_msm_defconfig
+make $J
+echo "$cyan Making dt.img"
+echo -e "$nocol"
+$DTBTOOL -2 -o $KERNEL_DIR/arch/arm64/boot/dt.img -s 2048 -p $KERNEL_DIR/scripts/dtc/ $KERNEL_DIR/arch/arm/boot/dts/
 if ! [ -a $KERN_IMG ];
 then
 echo -e "$red Kernel Compilation failed! Fix the errors! $nocol"
-exit 1
 fi
 
 
@@ -86,12 +88,13 @@ make_zip
 
 make_zip ()
 {
-if [[ $( ls ${KERNEL_DIR}/out/arch/arm64/boot/Image.gz-dtb 2>/dev/null | wc -l ) != "0" ]]; then
+if [[ $( ls ${KERNEL_DIR}/arch/arm64/boot/Image 2>/dev/null | wc -l ) != "0" ]]; then
 	BUILD_RESULT_STRING="BUILD SUCCESSFUL"
 	echo "Making Zip"
 	rm $BUILD_DIR/*.zip
 	rm $BUILD_DIR/zImage
-	cp $KERNEL_DIR/out/arch/arm64/boot/Image.gz-dtb $BUILD_DIR/zImage
+	cp $KERNEL_DIR/arch/arm64/boot/Image $BUILD_DIR/zImage
+        cp $KERNEL_DIR/arch/arm64/boot/dt.img $BUILD_DIR/dt.img
 	cd $BUILD_DIR
 	zip -r ${ZIP_NAME}.zip *
 	cd $KERNEL_DIR
@@ -104,7 +107,7 @@ fi
 
 case $1 in
 clean)
-make ARCH=arm64 O=out-j8 clean mrproper
+make ARCH=arm64 $J clean mrproper
 ;;
 *)
 TC
@@ -121,4 +124,3 @@ echo -e "$cyan*$nocol${green} ZIP LOCATION: ${BUILD_DIR}/${ZIP_NAME}.zip$nocol"
 echo -e "$cyan*$nocol${green} SIZE: $( du -h ${BUILD_DIR}/${ZIP_NAME}.zip | awk '{print $1}' )$nocol"
 echo -e "$cyan****************************************************************************************$nocol"
 fi
-
