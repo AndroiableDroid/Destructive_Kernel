@@ -8,3 +8,11 @@ config AiO_HotPlug
 	    Efficient in terms of CPU and Battery Consumption. Moreover, as the 
 	    name indicates, this HotPlug provides absolute flexibility in terms 
 	    of usage.
+
+config LAZYPLUG
+       bool "LazyPlug HotPlug, developed by arter97."
+       default y
+       help
+	    Based on IntelliPlug, this HotPlug uses a Conservative Approach
+	    towards HotPlugging. This HotPlug is Developed by arter97 and 
+	    Enhanced by fraps129.
