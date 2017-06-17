@@ -99,7 +99,7 @@ static struct workqueue_struct *lazyplug_boost_wq;
 static unsigned int __read_mostly lazyplug_active = 1;
 module_param(lazyplug_active, uint, 0664);
 
-static unsigned int __read_mostly touch_boost_active = 1;
+static unsigned int __read_mostly touch_boost_active = 0;
 module_param(touch_boost_active, uint, 0664);
 
 static unsigned int __read_mostly nr_run_profile_sel = 0;
