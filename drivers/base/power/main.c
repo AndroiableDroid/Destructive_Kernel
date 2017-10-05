@@ -656,6 +656,7 @@ static void async_resume_early(void *data, async_cookie_t cookie)
  * @state: PM transition of the system being carried out.
  */
 static void dpm_resume_early(pm_message_t state)
+#define pm_print_active_wakeup_sources(x);
 {
 	struct device *dev;
 	ktime_t starttime = ktime_get();
