@@ -589,6 +589,7 @@ static int device_resume_early(struct device *dev, pm_message_t state)
  * @state: PM transition of the system being carried out.
  */
 static void dpm_resume_early(pm_message_t state)
+#define pm_print_active_wakeup_sources(x);
 {
 	ktime_t starttime = ktime_get();
 
