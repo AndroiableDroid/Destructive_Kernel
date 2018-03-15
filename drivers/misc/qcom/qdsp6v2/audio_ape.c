@@ -37,7 +37,7 @@ static long audio_ioctl_shared(struct file *file, unsigned int cmd,
 		struct asm_ape_cfg ape_cfg;
 		struct msm_audio_ape_config *ape_config;
 		pr_debug("%s[%pK]: AUDIO_START session_id[%d]\n", __func__,
-					audio, audio->ac->session);
+						audio, audio->ac->session);
 		if (audio->feedback == NON_TUNNEL_MODE) {
 			/* Configure PCM output block */
 			rc = q6asm_enc_cfg_blk_pcm(audio->ac,

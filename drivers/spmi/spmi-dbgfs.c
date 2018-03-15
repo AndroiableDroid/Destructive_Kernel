@@ -490,12 +490,12 @@ static ssize_t spmi_dfs_reg_write(struct file *file, const char __user *buf,
 	struct spmi_trans *trans = file->private_data;
 
 	mutex_lock(&trans->spmi_dfs_lock);
-	trans = file->private_data;
+
 	offset = trans->offset;
 
 	/* Make a copy of the user data */
 	kbuf = kmalloc(count + 1, GFP_KERNEL);
-	if (!kbuf){
+	if (!kbuf) {
 		ret = -ENOMEM;
 		goto unlock_mutex;
 	}
