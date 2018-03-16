@@ -35,7 +35,10 @@ obj-$(CONFIG_INPUT_IMS_PCU)		+= ims-pcu.o
 obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
 obj-$(CONFIG_INPUT_KEYCHORD)		+= keychord.o
 obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+obj-$(CONFIG_INPUT_KIONIX_ACCEL)	+= kionix_accel_hy.o
 obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
+obj-$(CONFIG_INPUT_KXTJ9_HQ)		+= kxtj9_hq.o
+obj-$(CONFIG_INPUT_LSM6DX0)		+= lsm6dx0.o
 obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
 obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
 obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
@@ -74,8 +77,10 @@ obj-$(CONFIG_SENSORS_CAPELLA_CM36283)	+= cm36283.o
 obj-$(CONFIG_SENSORS_MPU6050)		+= mpu6050.o
 obj-$(CONFIG_SENSORS_AKM8963)		+= akm8963.o
 obj-$(CONFIG_SENSORS_AKM09911)		+= akm09911.o
+obj-$(CONFIG_SENSORS_ST480)		+= st480.o
 obj-$(CONFIG_SENSORS_LIS3DH)		+= lis3dh_acc.o
 obj-$(CONFIG_SENSORS_AP3426)		+= ap3426.o
+obj-$(CONFIG_SENSORS_AP3426_CM)		+= ap3426_cm.o
 obj-$(CONFIG_SENSORS_BMA2X2)	+= bstclass.o
 obj-$(CONFIG_SENSORS_BMA2X2)	+= bma2x2.o
 obj-$(CONFIG_SENSORS_LTR553_TEST_PLUS)	+= ltr553_test_plus.o
@@ -84,7 +89,7 @@ ifeq ($(CONFIG_SENSORS_BMA2X2_ENABLE_INT1),y)
 	EXTRA_CFLAGS += -DBMA2X2_ENABLE_INT1
 endif
 
-ifeq ($(CONFIG_BOSCH_BMA2X2_ENABLE_INT2),y)
+ifeq ($(CONFIG_SENSORS_BMA2X2_ENABLE_INT2),y)
 	EXTRA_CFLAGS += -DBMA2X2_ENABLE_INT2
 endif
 

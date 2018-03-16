@@ -20,6 +20,9 @@
 
 #include "partitions/check.h"
 
+#ifdef CONFIG_MMC_YL_PARAMS
+extern void notify_ylparams(struct hd_struct *part);
+#endif
 #ifdef CONFIG_BLK_DEV_MD
 extern void md_autodetect_dev(dev_t dev);
 #endif
@@ -211,6 +214,7 @@ static const struct attribute_group *part_attr_groups[] = {
 static void part_release(struct device *dev)
 {
 	struct hd_struct *p = dev_to_part(dev);
+	blk_free_devt(dev->devt);
 	free_part_stats(p);
 	free_part_info(p);
 	kfree(p);
@@ -264,7 +268,6 @@ void delete_partition(struct gendisk *disk, int partno)
 	rcu_assign_pointer(ptbl->last_lookup, NULL);
 	kobject_put(part->holder_dir);
 	device_del(part_to_dev(part));
-	blk_free_devt(part_devt(part));
 
 	hd_struct_put(part);
 }
@@ -531,6 +534,9 @@ rescan:
 			       disk->disk_name, p, -PTR_ERR(part));
 			continue;
 		}
+#ifdef CONFIG_MMC_YL_PARAMS
+		notify_ylparams(part);
+#endif
 #ifdef CONFIG_BLK_DEV_MD
 		if (state->parts[p].flags & ADDPART_FLAG_RAID)
 			md_autodetect_dev(part_to_dev(part)->devt);

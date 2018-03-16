@@ -35,6 +35,10 @@
  */
 #include <linux/switch.h>
 
+#ifdef CONFIG_MACH_CP8675
+#include "msm8x16_wcd_registers.h"
+#endif
+
 #define WCD_MBHC_JACK_MASK (SND_JACK_HEADSET | SND_JACK_OC_HPHL | \
 			   SND_JACK_OC_HPHR | SND_JACK_LINEOUT | \
 			   SND_JACK_UNSUPPORTED | SND_JACK_MECHANICAL)
@@ -167,6 +171,14 @@ static void wcd_program_btn_threshold(const struct wcd_mbhc *mbhc, bool micbias)
 
 	mbhc->mbhc_cb->set_btn_thr(codec, btn_low, btn_high, btn_det->num_btn,
 				   micbias);
+
+#ifdef CONFIG_MACH_CP8675
+	snd_soc_update_bits(codec, MSM8X16_WCD_A_ANALOG_MBHC_BTN0_ZDETL_CTL, 0xFC, 0x20);
+	snd_soc_update_bits(codec, MSM8X16_WCD_A_ANALOG_MBHC_BTN1_ZDETM_CTL, 0xFC, 0x68);
+	snd_soc_update_bits(codec, MSM8X16_WCD_A_ANALOG_MBHC_BTN2_ZDETH_CTL, 0xFC, 0x40);
+	snd_soc_update_bits(codec, MSM8X16_WCD_A_ANALOG_MBHC_BTN3_CTL, 0xFC, 0x78);
+	snd_soc_update_bits(codec, MSM8X16_WCD_A_ANALOG_MBHC_BTN4_CTL, 0xFC, 0x88);
+#endif
 }
 
 static void wcd_enable_curr_micbias(const struct wcd_mbhc *mbhc,
@@ -1036,8 +1048,9 @@ static void wcd_correct_swch_plug(struct work_struct *work)
 
 	pr_debug("%s: Valid plug found, plug type is %d\n",
 			 __func__, plug_type);
-	if (plug_type == MBHC_PLUG_TYPE_HEADSET ||
-	    plug_type == MBHC_PLUG_TYPE_HEADPHONE) {
+	if ((plug_type == MBHC_PLUG_TYPE_HEADSET ||
+	    plug_type == MBHC_PLUG_TYPE_HEADPHONE) &&
+	    (!mbhc->btn_press_intr)) {
 		WCD_MBHC_RSC_LOCK(mbhc);
 		wcd_mbhc_find_plug_and_report(mbhc, plug_type);
 		WCD_MBHC_RSC_UNLOCK(mbhc);

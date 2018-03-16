@@ -23,6 +23,7 @@
 #include <linux/err.h>
 
 #include "mdss_dsi.h"
+#include "mdss_livedisplay.h"
 
 #define DT_CMD_HDR 6
 
@@ -34,6 +35,11 @@
 
 #define MIN_REFRESH_RATE 48
 #define DEFAULT_MDP_TRANSFER_TIME 14000
+
+#ifdef CONFIG_MACH_T86519A1
+#define TPS65132_GPIO_POS_EN 902
+#define TPS65132_GPIO_NEG_EN 903
+#endif
 
 DEFINE_LED_TRIGGER(bl_led_trigger);
 
@@ -149,7 +155,7 @@ u32 mdss_dsi_panel_cmd_read(struct mdss_dsi_ctrl_pdata *ctrl, char cmd0,
 	return 0;
 }
 
-static void mdss_dsi_panel_cmds_send(struct mdss_dsi_ctrl_pdata *ctrl,
+void mdss_dsi_panel_cmds_send(struct mdss_dsi_ctrl_pdata *ctrl,
 			struct dsi_panel_cmds *pcmds)
 {
 	struct dcs_cmd_req cmdreq;
@@ -184,6 +190,43 @@ static struct dsi_cmd_desc backlight_cmd = {
 	led_pwm1
 };
 
+#ifdef CONFIG_MACH_CP8675
+static int backlight_response_curve[] = {
+	0,  4,  4,  4,  4,  6,  6,  8,
+	8,  10, 10, 10, 10, 10, 10, 11,
+	11, 11, 11, 11, 11, 11, 12,12,
+	12, 12,12, 12, 12, 12, 12, 12,
+	13, 13, 13, 13, 14, 14,14,14,
+	14, 15, 15, 16, 17, 18, 18, 19,
+	20, 21, 21, 22, 23, 24, 24, 25,
+	26, 27, 27, 28, 29, 29, 30, 31,
+	32, 32, 33, 34, 35, 35, 36, 37,
+	38, 38, 39, 39, 40, 40, 41, 41,
+	42, 42, 43, 43, 44, 44, 45, 45,
+	46, 46, 47, 47, 48, 48, 49, 49,
+	49, 50, 50, 51, 51, 51, 52, 52,
+	52, 53, 55, 56, 58, 59, 61, 62,
+	63, 64, 65, 66, 67, 68, 69, 70,
+	71, 72, 73, 74, 75, 76, 77, 78,
+	79, 80, 81, 81, 82, 83, 84, 84,
+	85, 86, 87, 87, 88, 89, 90, 91,
+	92, 94, 95, 97, 98, 100,101,103,
+	104,106,107,108,110,111,113,114,
+	116,117,119,120,122,123,125,126,
+	127,129,130,132,133,135,136,138,
+	139,141,142,144,145,146,148,149,
+	151,152,154,155,157,158,160,161,
+	163,164,165,167,168,170,171,173,
+	174,176,177,179,180,181,183,184,
+	186,187,189,190,192,193,195,196,
+	198,199,200,202,203,205,206,208,
+	209,211,212,214,215,217,218,219,
+	221,222,224,225,227,228,230,231,
+	233,234,236,237,238,240,241,243,
+	244,246,247,249,250,252,253,255,
+};
+#endif
+
 static void mdss_dsi_panel_bklt_dcs(struct mdss_dsi_ctrl_pdata *ctrl, int level)
 {
 	struct dcs_cmd_req cmdreq;
@@ -198,7 +241,11 @@ static void mdss_dsi_panel_bklt_dcs(struct mdss_dsi_ctrl_pdata *ctrl, int level)
 
 	pr_debug("%s: level=%d\n", __func__, level);
 
+#ifdef CONFIG_MACH_CP8675
+	led_pwm1[1] = (unsigned char)backlight_response_curve[level];
+#else
 	led_pwm1[1] = (unsigned char)level;
+#endif
 
 	memset(&cmdreq, 0, sizeof(cmdreq));
 	cmdreq.cmds = &backlight_cmd;
@@ -615,6 +662,11 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_MACH_T86519A1
+	gpio_set_value(TPS65132_GPIO_POS_EN, 1);
+	gpio_set_value(TPS65132_GPIO_NEG_EN, 1);
+#endif
+
 	pinfo = &pdata->panel_info;
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
@@ -681,6 +733,11 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_MACH_T86519A1
+	gpio_set_value(TPS65132_GPIO_POS_EN, 0);
+	gpio_set_value(TPS65132_GPIO_NEG_EN, 0);
+#endif
+
 	pinfo = &pdata->panel_info;
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
@@ -729,6 +786,117 @@ static int mdss_dsi_panel_low_power_config(struct mdss_panel_data *pdata,
 	return 0;
 }
 
+#ifdef CONFIG_MACH_CP8675
+static int mdss_dsi_parse_status_regs(struct device_node *np,
+		struct dsi_panel_status_regs *status_regs,  char *cmd_reg)
+{
+	int i, len,cnt;
+	int blen = 0;
+	const char *data;
+	char *buf, *bp;
+	struct status_reg *reg;
+
+	data = of_get_property(np, cmd_reg, &blen);
+	if (!data) {
+		pr_err("%s: failed, key=%s\n", __func__, cmd_reg);
+		return -ENOMEM;
+	}
+	buf = kzalloc(sizeof(char) * blen, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	memcpy(buf, data, blen);
+
+	bp = buf;
+	len = blen;
+	cnt = 0;
+	while (len > sizeof(char) * 2) {
+		reg = (struct status_reg *)bp;
+		if (reg->num_vals > len) {
+			pr_err("%s: dtsi reg check reg=%x error, len=%d",
+					__func__, reg->reg,
+					reg->num_vals);
+			kfree(buf);
+			return -ENOMEM;
+		}
+
+		bp += sizeof(reg->reg);
+		len -= sizeof(reg->reg);
+		bp += sizeof(reg->num_vals);
+		len -= sizeof(reg->num_vals);
+		bp += reg->num_vals;
+		len -= reg->num_vals;
+		cnt++;
+	}
+
+	if (len != 0) {
+		pr_err("%s: status reg=%x len=%d error!",
+				__func__, buf[0], blen);
+		kfree(buf);
+		return -ENOMEM;
+	}
+	status_regs->regs = kzalloc(cnt * sizeof(struct status_reg),
+			GFP_KERNEL);
+	if (!status_regs->regs) {
+		kfree(buf);
+		return -ENOMEM;
+	}
+
+	status_regs->num_regs = cnt;
+
+	bp = buf;
+	len = blen;
+	for (i = 0; i < cnt; i++) {
+		reg = (struct status_reg *)bp;
+		status_regs->regs[i].reg = reg->reg;
+		status_regs->regs[i].num_vals = reg->num_vals;
+		bp += sizeof(reg->reg);
+		len -= sizeof(reg->reg);
+		bp += sizeof(reg->num_vals);
+		len -= sizeof(reg->num_vals);
+		status_regs->regs[i].vals = bp;
+		bp += reg->num_vals;
+		len -= reg->num_vals;
+	}
+
+	return 0;
+}
+
+static int mdss_dsi_parse_backlight_response_curve(struct device_node *np,
+		char *cmd_reg)
+{
+	int i,k;
+	int blen = 0;
+	const char *data;
+	char *buf, *bp;
+
+	data = of_get_property(np, cmd_reg, &blen);
+	if (!data)
+		return -ENOMEM;
+
+	buf = kzalloc(sizeof(char) * blen, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+	memcpy(buf, data, blen);
+	if (256 != blen)
+		return -EINVAL;
+
+	bp = buf;
+	for (k = 0; k < blen-1; k++) {
+		if (*bp > *(bp + 1))
+			return -EINVAL;
+		bp++;
+	}
+
+	bp = buf;
+	for (i = 0; i < blen; i++) {
+		backlight_response_curve[i] = *(bp++);
+	}
+	return 0;
+}
+#endif
+
 static void mdss_dsi_parse_lane_swap(struct device_node *np, char *dlane_swap)
 {
 	const char *data;
@@ -773,7 +941,7 @@ static void mdss_dsi_parse_trigger(struct device_node *np, char *trigger,
 }
 
 
-static int mdss_dsi_parse_dcs_cmds(struct device_node *np,
+int mdss_dsi_parse_dcs_cmds(struct device_node *np,
 		struct dsi_panel_cmds *pcmds, char *cmd_key, char *link_key)
 {
 	const char *data;
@@ -1103,6 +1271,40 @@ static int mdss_dsi_nt35596_read_status(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 	}
 }
 
+#ifdef CONFIG_MACH_CP8675
+static int mdss_dsi_yl_read_status(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
+{
+	int i, j;
+	u8 *reg_data;
+	u8 *vals;
+	struct status_reg *reg;
+
+	/* Format of commands is like a DCS command, except the
+	 * command ID is the register and command params are the
+	 * expected register contents.
+	 * eg. [09 04 80 73 04 00]
+	 * register 9, length 4, expected value: 80 73 04 00
+	 */
+
+	/* Re-use status_buf instead of allocating new buffer */
+	reg_data = ctrl_pdata->status_buf.data;
+	for (i = 0; i < ctrl_pdata->status_regs.num_regs; i++) {
+		reg = &ctrl_pdata->status_regs.regs[i];
+		vals = reg->vals;
+		mdss_dsi_panel_cmd_read(ctrl_pdata,
+				reg->reg,
+				0, NULL, reg_data, reg->num_vals);
+		for (j = 0; j < reg->num_vals; j++) {
+			if (*(reg_data++) != *(vals++)) {
+				return -EINVAL;
+			}
+		}
+	}
+
+	return 1;
+}
+#endif
+
 static void mdss_dsi_parse_roi_alignment(struct device_node *np,
 		struct mdss_panel_info *pinfo)
 {
@@ -1265,6 +1467,7 @@ static int mdss_dsi_set_refresh_rate_range(struct device_node *pan_node,
 		struct mdss_panel_info *pinfo)
 {
 	int rc = 0;
+	u32 tmp = 0;
 	rc = of_property_read_u32(pan_node,
 			"qcom,mdss-dsi-min-refresh-rate",
 			&pinfo->min_fps);
@@ -1294,6 +1497,13 @@ static int mdss_dsi_set_refresh_rate_range(struct device_node *pan_node,
 		 */
 		pinfo->max_fps = pinfo->mipi.frame_rate;
 		rc = 0;
+	}
+
+	rc = of_property_read_u32(pan_node,
+			"qcom,mdss-dsi-idle-refresh-rate",
+			&tmp);
+	if (rc == 0 && tmp >= pinfo->min_fps && tmp <= pinfo->max_fps) {
+		pinfo->idle_fps = tmp;
 	}
 
 	pr_info("dyn_fps: min = %d, max = %d\n",
@@ -1798,6 +2008,17 @@ static int mdss_panel_parse_dt(struct device_node *np,
 	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->off_cmds,
 		"qcom,mdss-dsi-off-command", "qcom,mdss-dsi-off-command-state");
 
+#ifdef CONFIG_MACH_CP8675
+	pinfo->mipi.has_tps65132 = of_property_read_bool(np,
+					"qcom,has-tps65132");
+
+	mdss_dsi_parse_status_regs(np, &ctrl_pdata->status_regs,
+			"qcom,panel-alive-reg-content");
+
+	mdss_dsi_parse_backlight_response_curve(np,
+			"qcom,panel-backlight-response-curve");
+#endif
+
 	mdss_dsi_parse_dcs_cmds(np, &ctrl_pdata->status_cmds,
 			"qcom,mdss-dsi-panel-status-command",
 				"qcom,mdss-dsi-panel-status-command-state");
@@ -1828,6 +2049,15 @@ static int mdss_panel_parse_dt(struct device_node *np,
 			else
 				pr_err("TE-ESD not valid for video mode\n");
 		}
+#ifdef CONFIG_MACH_CP8675
+		else if (!strcmp(data, "reg_read_yl")) {
+			ctrl_pdata->status_mode = ESD_REG_YL;
+			ctrl_pdata->status_error_count = 0;
+			ctrl_pdata->status_cmds_rlen = 0;
+			ctrl_pdata->check_read_status =
+				mdss_dsi_yl_read_status;
+		}
+#endif
 	}
 
 	pinfo->mipi.force_clk_lane_hs = of_property_read_bool(np,
@@ -1845,6 +2075,8 @@ static int mdss_panel_parse_dt(struct device_node *np,
 	mdss_dsi_parse_panel_horizintal_line_idle(np, ctrl_pdata);
 
 	mdss_dsi_parse_dfps_config(np, ctrl_pdata);
+
+	mdss_livedisplay_parse_dt(np, pinfo);
 
 	return 0;
 
