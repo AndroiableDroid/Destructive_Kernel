@@ -12,6 +12,7 @@ bin=/tmp/anykernel/tools;
 split_img=/tmp/anykernel/split_img;
 patch=/tmp/anykernel/patch;
 kernel=/tmp/anykernel/zImage;
+dtb=/tmp/anykernel/dt.img;
 
 chmod -R 755 $bin;
 mkdir $split_img;
@@ -55,7 +56,7 @@ write_boot() {
     secondoff=`cat *-secondoff`;
     secondoff="--second_offset $secondoff";
   fi;
-  $bin/mkbootimg --kernel $kernel --ramdisk /tmp/anykernel/split_img/boot.img-ramdisk.gz $second --cmdline "$cmdline" --board "$board" --base $base --pagesize $pagesize --kernel_offset $kerneloff --ramdisk_offset $ramdiskoff $secondoff --tags_offset $tagsoff --output /tmp/anykernel/boot-new.img;
+  $bin/mkbootimg --kernel $kernel --ramdisk /tmp/anykernel/split_img/boot.img-ramdisk.gz $second --cmdline "$cmdline" --board "$board" --base $base --pagesize $pagesize --kernel_offset $kerneloff --ramdisk_offset $ramdiskoff $secondoff --tags_offset $tagsoff --dt $dtb --output /tmp/anykernel/boot-new.img;
   if [ $? != 0 -o `wc -c < /tmp/anykernel/boot-new.img` -gt `wc -c < /tmp/anykernel/boot.img` ]; then
     ui_print " "; ui_print "Repacking image failed. Aborting...";
     echo 1 > /tmp/anykernel/exitcode; exit;

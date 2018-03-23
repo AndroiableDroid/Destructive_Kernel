@@ -150,3 +150,4 @@ dkms.conf
 
 #Out Folder
 out/
+*.img
