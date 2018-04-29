@@ -1,6 +1,6 @@
 
 # shell variables
-block=/dev/block/bootdevice/by-name/boot;
+block=/dev/block/platform/soc.0/7824900.sdhci/by-name/boot;
 
 ## end setup
 
@@ -16,7 +16,7 @@ dtb=/tmp/anykernel/dt.img;
 
 chmod -R 755 $bin;
 mkdir $split_img;
-#ramdisk=/tmp/anykernel/split_img/ramdisk;
+ramdisk=/tmp/anykernel/split_img/ramdisk;
 
 # dump boot and extract ramdisk
 dump_boot() {
@@ -66,7 +66,7 @@ write_boot() {
 
 dump_boot;
 
-#ramdisk;
+ramdisk;
 
 write_boot;
 
