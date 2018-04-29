@@ -17,7 +17,7 @@
 # Please maintain this if you use this script or any part of it
 #
 KERNEL_DIR=$PWD
-KERN_IMG=$KERNEL_DIR/arch/arm64/boot/Image
+KERN_IMG=$KERNEL_DIR/arch/arm64/boot/Image.gz
 DTBTOOL=$KERNEL_DIR/tools/dtbToolCM
 BUILD_START=$(date +"%s")
 blue='\033[0;34m'
@@ -88,12 +88,12 @@ make_zip
 
 make_zip ()
 {
-if [[ $( ls ${KERNEL_DIR}/arch/arm64/boot/Image 2>/dev/null | wc -l ) != "0" ]]; then
+if [[ $( ls ${KERNEL_DIR}/arch/arm64/boot/Image.gz 2>/dev/null | wc -l ) != "0" ]]; then
 	BUILD_RESULT_STRING="BUILD SUCCESSFUL"
 	echo "Making Zip"
 	rm $BUILD_DIR/*.zip
 	rm $BUILD_DIR/zImage
-	cp $KERNEL_DIR/arch/arm64/boot/Image $BUILD_DIR/zImage
+	cp $KERNEL_DIR/arch/arm64/boot/Image.gz $BUILD_DIR/zImage
         cp $KERNEL_DIR/arch/arm64/boot/dt.img $BUILD_DIR/dt.img
 	cd $BUILD_DIR
 	zip -r ${ZIP_NAME}.zip *
