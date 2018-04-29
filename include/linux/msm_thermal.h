@@ -324,7 +324,7 @@ static inline void devmgr_unregister_mitigation_client(
 {
 }
 static inline int msm_thermal_get_cluster_voltage_plan(uint32_t cluster,
-	uint32_t *table_ptr);
+	uint32_t *table_ptr)
 {
 	return -ENOSYS;
 }
