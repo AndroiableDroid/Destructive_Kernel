@@ -34,6 +34,14 @@ ramdisk() {
   gzip -dc ../boot.img-ramdisk.gz | cpio -i;
   rm -rf ../boot.img-ramdisk.gz;
   cp $project $ramdisk;
+  # Add Spectrum Profile
+  ui_print "Pushing Spectrum Profiles...";
+  found=$(find init.rc -type f | xargs grep -oh "import /init.spectrum.rc");
+  if [ "$found" != 'import /init.spectrum.rc' ]; then
+	#append the new lines for this option at the bottom
+        echo "" >> init.rc
+	echo "import /init.spectrum.rc" >> init.rc
+  fi
   find . | cpio -o -H newc | gzip > ../boot.img-ramdisk.gz
   ui_print "Ramdisk Fixing Done";
 
