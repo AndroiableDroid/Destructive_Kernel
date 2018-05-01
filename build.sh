@@ -100,6 +100,7 @@ if [[ $( ls ${KERNEL_DIR}/arch/arm64/boot/Image.gz 2>/dev/null | wc -l ) != "0" 
 	cd $KERNEL_DIR
 	rm -rf $KERNEL_DIR/out
 	rm $BUILD_DIR/zImage
+	make $J mrproper
 else
     BUILD_RESULT_STRING="BUILD FAILED"
 fi
