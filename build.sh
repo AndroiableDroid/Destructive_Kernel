@@ -31,7 +31,6 @@ white='\e[0;37m'
 DEVICE="LS-5015"
 J="-j$(grep -c ^processor /proc/cpuinfo)"
 
-
 if [[ ! -d $KERNEL_DIR/build/dt_o ]]; then
 	mkdir $KERNEL_DIR/build/dt_o
 fi
