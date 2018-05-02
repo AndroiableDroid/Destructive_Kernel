@@ -150,5 +150,4 @@ dkms.conf
 
 #Out Folder
 out/
-*.img
-
+arch/arm64/boot/dt.img
