@@ -151,5 +151,4 @@ dkms.conf
 #Out Folder
 out/
 *.img
-build/
-zImage
+

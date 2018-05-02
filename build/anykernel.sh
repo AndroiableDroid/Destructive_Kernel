@@ -7,12 +7,23 @@ block=/dev/block/platform/soc.0/7824900.sdhci/by-name/boot;
 
 ## AnyKernel methods (DO NOT CHANGE)
 # set up extracted files and directories
-project=/tmp/anykernel/project/*;
+project=/tmp/anykernel/project_o/*;
 bin=/tmp/anykernel/tools;
 split_img=/tmp/anykernel/split_img;
 patch=/tmp/anykernel/patch;
 kernel=/tmp/anykernel/zImage;
-dtb=/tmp/anykernel/dt.img;
+dtb=/tmp/anykernel/dt_o/dt.img;
+modules=/tmp/anykernel/modules/*
+prop=$(grep "ro.build.version.sdk" /system/build.prop | cut -d'=' -f2 );
+
+# Checking for Oreo
+if [ $prop -lt 27 ]; then
+dtb=/tmp/anykernel/dt_n/dt.img;
+project=/tmp/anykernel/project_n/*;
+else
+project=/tmp/anykernel/project_o/*;
+dtb=/tmp/anykernel/dt_o/dt.img;
+fi
 
 chmod -R 755 $bin;
 mkdir $split_img;
