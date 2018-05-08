@@ -151,3 +151,4 @@ dkms.conf
 #Out Folder
 out/
 arch/arm64/boot/dt.img
+build/dt_o/dt.img

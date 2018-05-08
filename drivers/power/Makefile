@@ -56,6 +56,7 @@ obj-$(CONFIG_SMB350_CHARGER)   += smb350_charger.o
 obj-$(CONFIG_SMB1351_USB_CHARGER) += smb1351-charger.o
 obj-$(CONFIG_SMB135X_CHARGER)   += smb135x-charger.o
 obj-$(CONFIG_SMB1360_CHARGER_FG) += smb1360-charger-fg.o
+obj-$(CONFIG_QNS_SYSTEM)	+= qns_system.o
 obj-$(CONFIG_SMB1360_CHARGER_FG_TESTPLUS) += smb1360-charger-fg-testplus.o
 obj-$(CONFIG_SMB1360_CHARGER_FG_TEST) += smb1360-charger-fg-test.o
 obj-$(CONFIG_SMB358_CHARGER)	+= smb358-charger.o
