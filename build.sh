@@ -61,7 +61,7 @@ export KBUILD_BUILD_USER="Faraz"
 export KBUILD_BUILD_HOST="TimeMachine"
 export USE_CCACHE=1
 BUILD_DIR=$KERNEL_DIR/build
-VERSION="X9.1"
+VERSION="X9.2"
 DATE=$(date -u +%Y%m%d-%H%M)
 ZIP_NAME=Nichrome-$DEVICE-$VERSION-$DATE
 
