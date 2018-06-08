@@ -206,9 +206,6 @@ struct ex_dbs_tuners {
 	unsigned int active_floor_freq;
 	unsigned int sampling_down_factor;
 	unsigned int powersave;
-	unsigned int boost_enabled;
-	unsigned int boost_count;
-	unsigned int boost_ceiling;
 };
 
 /* Common Governor data across policies */
