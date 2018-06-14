@@ -1,3 +1,11 @@
+config MSM_HOTPLUG
+	bool "MSM hotplug driver"
+	depends on HOTPLUG_CPU
+	default y
+	help
+	  The MSM hotplug driver controls on-/offlining of additional cores based
+	  on current cpu load.
+
 config AiO_HotPlug
        bool "An All in One HotPlug for all main types of SoCs."
        default y
