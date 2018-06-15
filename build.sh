@@ -49,7 +49,7 @@ if [[ -d ${Toolchain} ]]; then
 		rm -rf ${Toolchain}
 	fi
 else
-	git clone https://github.com/AndroiableDroid/aarch64-linux-kernel-linaro-7.x.git $Toolchain
+	git clone https://github.com/LS-5015-G42-Dev-Team/aarch64-linux-android.git $Toolchain
 fi
 }
 
@@ -61,7 +61,7 @@ export KBUILD_BUILD_USER="Faraz"
 export KBUILD_BUILD_HOST="TimeMachine"
 export USE_CCACHE=1
 BUILD_DIR=$KERNEL_DIR/build
-VERSION="X9.2"
+VERSION="X9.3-EiD-Special"
 DATE=$(date -u +%Y%m%d-%H%M)
 ZIP_NAME=Nichrome-$DEVICE-$VERSION-$DATE
 

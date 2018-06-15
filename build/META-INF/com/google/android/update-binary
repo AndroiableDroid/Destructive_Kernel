@@ -27,7 +27,9 @@ mkdir -p /tmp/anykernel;
 cd /tmp/anykernel;
 unzip -o "$ZIP";
 ui_print "**********************************";
-ui_print "      Nichrome™ X9.2 Kernel";
+ui_print "      Nichrome™ X9.3 Kernel";
+ui_print "";
+ui_print "           EiD Special"
 ui_print "**********************************";
 /sbin/busybox mount /system;
 ui_print "*)Preparing Files";
