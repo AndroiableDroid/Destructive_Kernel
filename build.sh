@@ -1,3 +1,4 @@
+
 #
 # Copyright © 2016, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
 # Copyright © 2017, Ritesh Saxena <riteshsax007@gmail.com>
@@ -42,7 +43,7 @@ if [[ -d ${UBER} ]]; then
 	if [[ -d ${UBER}/.git ]]; then
 			cd ${UBER}
 			git fetch origin
-                        git reset --hard origin/master
+                        git reset --hard @{u}
                         git clean -fxd > /dev/null 2>&1
                         cd ${KERNEL_DIR}
 	else
@@ -54,7 +55,7 @@ fi
 }
 
 # Modify the following variable if you want to build
-export CROSS_COMPILE=$UBER/bin/aarch64-linux-android-
+export CROSS_COMPILE=$Toolchain/bin/aarch64-common-linux-android-
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER="Faraz"
