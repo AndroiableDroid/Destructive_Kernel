@@ -42,7 +42,7 @@ if [[ -d ${Toolchain} ]]; then
 	if [[ -d ${Toolchain}/.git ]]; then
 			cd ${Toolchain}
 			git fetch origin
-                        git reset --hard origin/master
+                        git reset --hard @{u}
                         git clean -fxd > /dev/null 2>&1
                         cd ${KERNEL_DIR}
 	else
@@ -54,7 +54,7 @@ fi
 }
 
 # Modify the following variable if you want to build
-export CROSS_COMPILE=$Toolchain/bin/aarch64-linaro-linux-gnu-
+export CROSS_COMPILE=$Toolchain/bin/aarch64-common-linux-android-
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER="Faraz"
