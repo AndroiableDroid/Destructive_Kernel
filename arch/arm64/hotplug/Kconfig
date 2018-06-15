@@ -8,7 +8,7 @@ config MSM_HOTPLUG
 
 config AiO_HotPlug
        bool "An All in One HotPlug for all main types of SoCs."
-       default y
+       default n
        help
 	    An All in One HotPlug for Quad, Hexa and Octa-Core SoCs as well as 
 	    Traditional and big.LITTLE SoCs developed by Shoaib Anwar a.k.a Shoaib0597. 
@@ -19,11 +19,8 @@ config AiO_HotPlug
 
 config LAZYPLUG
        bool "LazyPlug HotPlug, developed by arter97."
-       default y
+       default n
        help
 	    Based on IntelliPlug, this HotPlug uses a Conservative Approach
 	    towards HotPlugging. This HotPlug is Developed by arter97 and 
 	    Enhanced by fraps129.
-config STATE_HELPER
-        bool "State Helper"
-	    depends on STATE_NOTIFIER
