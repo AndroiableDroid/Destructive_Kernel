@@ -39,8 +39,8 @@ fi
 make $J clean mrproper
 
 # Get Toolchain
-
 Toolchain=$KERNEL_DIR/../Toolchain
+TOOL_VER="snapshot-7.3-2018.06"
 
 function TC() {
 
@@ -55,7 +55,7 @@ if [[ -d ${Toolchain} ]]; then
 		rm -rf ${Toolchain}
 	fi
 else
-	git clone https://github.com/LS-5015-G42-Dev-Team/aarch64-linux-android.git $Toolchain
+	git clone https://github.com/LS-5015-G42-Dev-Team/aarch64-linux-android.git -b ${TOOL_VER} $Toolchain
 fi
 }
 
