@@ -35,7 +35,7 @@ mkdir $KERNEL_DIR/out
 
 # Get Toolchain
 Toolchain=$KERNEL_DIR/../Toolchain
-TOOL_VER="snapshot-7.3-2018.06"
+TOOL_VER="opt-gnu-8.x"
 
 function TC() {
 
@@ -55,7 +55,7 @@ fi
 }
 
 # Modify the following variable if you want to build
-export CROSS_COMPILE=$Toolchain/bin/aarch64-common-linux-android-
+export CROSS_COMPILE=$Toolchain/bin/aarch64-opt-linux-android-
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER="Faraz"
