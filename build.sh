@@ -34,8 +34,8 @@ rm -rf $KERNEL_DIR/out
 mkdir $KERNEL_DIR/out
 
 # Get Toolchain
-
-UBER=$KERNEL_DIR/../uber
+Toolchain=$KERNEL_DIR/../Toolchain
+TOOL_VER="snapshot-7.3-2018.06"
 
 function TC() {
 
@@ -50,7 +50,7 @@ if [[ -d ${UBER} ]]; then
 		rm -rf ${UBER}
 	fi
 else
-	git clone https://bitbucket.org/UBERTC/aarch64-linux-android-4.9-kernel.git $UBER
+	git clone https://github.com/LS-5015-G42-Dev-Team/aarch64-linux-android.git -b ${TOOL_VER} $Toolchain
 fi
 }
 
