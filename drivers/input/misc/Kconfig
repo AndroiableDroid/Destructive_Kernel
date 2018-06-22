@@ -752,6 +752,26 @@ config SENSORS_AP3426
 	  To compile this driver as a module, choose M here: the
 	  module will be called ap3426.
 
+config SENSORS_LTR553_TEST
+	tristate "LTR553 light and proximity device driver"
+	depends on I2C
+	help
+	  Say Y here if you want to enable the LTR553 light and
+	  proximity sensor driver.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called ltr553 for test.
+
+config SENSORS_LTR553_TEST_PLUS
+	tristate "LTR553 light and proximity device driver"
+	depends on I2C
+	help
+	  Say Y here if you want to enable the LTR553 light and
+	  proximity sensor driver.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called ltr553 for test_plus.
+
 config SENSORS_AP3426_CM
 	tristate "AP3426 3-in-1 digital ALPS+PS+IRLED sensor driver (CM variant)"
 	depends on I2C
@@ -792,6 +812,22 @@ config SENSORS_MMC3416X
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called mmc3416x.
+
+config SENSORS_ST480_TEST_PLUS
+	tristate "Senodia ST480 magnetic sensor support"
+	depends on I2C=y
+    default n
+    help
+		If you say yes here you get support for Senodia
+		magnetic sensors ST480 for test_plus.
+
+config SENSORS_ST480_TEST
+        tristate "Senodia ST480 magnetic sensor support"
+        depends on I2C=y
+    default n
+    help
+                If you say yes here you get support for Senodia
+                magnetic sensors ST480 for test.
 
 config SENSORS_MMC3416X_ALLOW_OVERFLOW
 	tristate "MMC3416X sensor overflow check"
@@ -976,6 +1012,31 @@ config INPUT_LSM6DX0
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called lsm6dx0.
+
+if INPUT_LSM6DS3
+choice
+	prompt "LSM6DS3 bus selection"
+	default INPUT_LSM6DS3_I2C
+
+config INPUT_LSM6DS3_I2C
+	bool "I2C"
+
+config INPUT_LSM6DS3_SPI
+	bool "SPI"
+endchoice
+
+choice
+	prompt "LSM6DS3 mode selection"
+	default LSM6DS3_POLLING_MODE
+
+config LSM6DS3_POLLING_MODE
+	bool "Polling"
+
+config LSM6DS3_FIFO_MODE
+	bool "FIFO trigger"
+endchoice
+
+endif
 
 config SENSORS_ST480
 	tristate "Senodia ST480 magnetic sensor support"

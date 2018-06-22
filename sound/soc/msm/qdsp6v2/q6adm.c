@@ -236,7 +236,6 @@ static int adm_get_next_available_copp(int port_idx)
 	}
 	return idx;
 }
-
 int srs_trumedia_open(int port_id, int copp_idx, __s32 srs_tech_id,
 		      void *srs_params)
 {

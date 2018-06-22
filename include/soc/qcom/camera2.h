@@ -147,6 +147,13 @@ struct msm_camera_sensor_board_info {
 	const char *eeprom_name;
 	const char *actuator_name;
 	const char *ois_name;
+	//Jelly add for s5k5e2 compatibale
+	#ifdef CONFIG_TEST_ONLY
+    int32_t eeprom_mid_addr[30];
+    uint16_t eeprom_mid_addr_cnt;
+    uint16_t eeprom_mid;
+	#endif
+	//end
 	const char *special_support_sensors[MAX_SPECIAL_SUPPORT_SIZE];
 	int32_t special_support_size;
 	struct msm_camera_slave_info *slave_info;

@@ -30,6 +30,10 @@
 #include <sound/jack.h>
 #include "wcd-mbhc-v2.h"
 #include "wcdcal-hwdep.h"
+/*
+ *2016.03.23 add for FM test item of FFBM.
+ */
+#include <linux/switch.h>
 
 #ifdef CONFIG_MACH_CP8675
 #include "msm8x16_wcd_registers.h"
@@ -55,6 +59,19 @@
 #define MAX_IMPED 60000
 
 #define WCD_MBHC_BTN_PRESS_COMPL_TIMEOUT_MS  50
+/*
+ *2016.03.23 add for FM test item of FFBM.
+ */
+struct headset_switch_t {
+	struct switch_dev sdev;
+};
+
+static struct headset_switch_t headset_switch = {
+	.sdev = {
+		.name = "h2w",
+		.state = 0,
+	},
+};
 
 static int det_extn_cable_en;
 module_param(det_extn_cable_en, int,
@@ -72,6 +89,16 @@ static void wcd_mbhc_jack_report(struct wcd_mbhc *mbhc,
 				struct snd_soc_jack *jack, int status, int mask)
 {
 	snd_soc_jack_report(jack, status, mask);
+	/*
+	 *2016.03.23 add for FM test item of FFBM.
+	 */
+	pr_debug("%s: switch set status as %x\n",__func__, status);
+	if(status & SND_JACK_HEADPHONE || status & SND_JACK_LINEOUT) {
+		switch_set_state(&headset_switch.sdev, !!status);
+	}
+	else if (status == 0) {
+		switch_set_state(&headset_switch.sdev, 0);
+	}
 }
 
 static void __hphocp_off_report(struct wcd_mbhc *mbhc, u32 jack_status,
@@ -578,7 +605,7 @@ static void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 			 jack_type, mbhc->hph_status);
 		wcd_mbhc_jack_report(mbhc, &mbhc->headset_jack,
 				mbhc->hph_status, WCD_MBHC_JACK_MASK);
-		wcd_mbhc_set_and_turnoff_hph_padac(mbhc);
+		//wcd_mbhc_set_and_turnoff_hph_padac(mbhc);
 		hphrocp_off_report(mbhc, SND_JACK_OC_HPHR);
 		hphlocp_off_report(mbhc, SND_JACK_OC_HPHL);
 		mbhc->current_plug = MBHC_PLUG_TYPE_NONE;
@@ -593,7 +620,7 @@ static void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 		    jack_type == SND_JACK_LINEOUT) &&
 		    (mbhc->hph_status && mbhc->hph_status != jack_type)) {
 
-			if (mbhc->micbias_enable) {
+			if (mbhc->micbias_enable && mbhc->current_plug == MBHC_PLUG_TYPE_HEADSET) {
 				if (mbhc->mbhc_cb->mbhc_micbias_control)
 					mbhc->mbhc_cb->mbhc_micbias_control(
 							mbhc->codec,
@@ -2301,6 +2328,15 @@ int wcd_mbhc_init(struct wcd_mbhc *mbhc, struct snd_soc_codec *codec,
 		goto err_hphr_ocp_irq;
 	}
 
+	/*
+	 *2016.03.23 add for FM test item of FFBM.
+	 */
+	ret = switch_dev_register(&headset_switch.sdev);
+	if(ret) {
+		pr_err("%s: Failed to register switch\n", __func__);
+		goto err_hphr_ocp_irq;
+	}
+
 	pr_debug("%s: leave ret %d\n", __func__, ret);
 	return ret;
 
@@ -2332,6 +2368,8 @@ void wcd_mbhc_deinit(struct wcd_mbhc *mbhc)
 {
 	struct snd_soc_codec *codec = mbhc->codec;
 
+    switch_dev_unregister(&headset_switch.sdev);
+	
 	mbhc->mbhc_cb->free_irq(codec, mbhc->intr_ids->mbhc_sw_intr, mbhc);
 	mbhc->mbhc_cb->free_irq(codec, mbhc->intr_ids->mbhc_btn_press_intr,
 				mbhc);

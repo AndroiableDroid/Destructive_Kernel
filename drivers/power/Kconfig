@@ -393,6 +393,39 @@ config SMB135X_CHARGER
 	  The driver reports the charger status via the power supply framework.
 	  A charger status change triggers an IRQ via the device STAT pin.
 
+config SMB1360_CHARGER_FG_TEST
+	tristate "TEST SMB1360 Charger and Fuel Guage"
+	depends on I2C
+	help
+	  Say Y to include support for SMB1360 Charger and Fuel Guage.
+	  SMB1360 is a single path switching mode charger capable of charging
+	  the battery with 1.5Amps of current. It supports a fuel gauge which
+	  uses voltage and coloumb counting for state of charge reporting.
+	  The driver reports the status via the power supply framework
+	  A status change triggers an IRQ via the device STAT pin.
+
+config SMB1360_CHARGER_FG_TESTPLUS
+	tristate "TESTPLUS SMB1360 Charger and Fuel Guage"
+	depends on I2C
+	help
+	  Say Y to include support for SMB1360 Charger and Fuel Guage.
+	  SMB1360 is a single path switching mode charger capable of charging
+	  the battery with 1.5Amps of current. It supports a fuel gauge which
+	  uses voltage and coloumb counting for state of charge reporting.
+	  The driver reports the status via the power supply framework
+	  A status change triggers an IRQ via the device STAT pin.
+
+config SMB1360_CHARGER_FG_MIRAGE
+	tristate "MIRAGE SMB1360 Charger and Fuel Guage"
+	depends on I2C
+	help
+	  Say Y to include support for SMB1360 Charger and Fuel Guage.
+	  SMB1360 is a single path switching mode charger capable of charging
+	  the battery with 1.5Amps of current. It supports a fuel gauge which
+	  uses voltage and coloumb counting for state of charge reporting.
+	  The driver reports the status via the power supply framework
+	  A status change triggers an IRQ via the device STAT pin.
+
 config SMB1360_CHARGER_FG
 	tristate "SMB1360 Charger and Fuel Guage"
 	depends on I2C
@@ -618,6 +651,16 @@ config YL_CHARGE_MODE
 	default n
 	help
 	  Say Y to enable Yulong charge mode.
+
+config TEST_ONLY
+        bool "test driver different flag"
+		help
+		    make macro CONFIG_TEST_ONLY WORKED
+
+config TESTPLUS_ONLY
+        bool "testplus driver different flag "
+		help
+		    make macro CONFIG_TESTPLUS_ONLY WORKED
 
 source "drivers/power/reset/Kconfig"
 

@@ -527,6 +527,13 @@ config LEDS_BLINKM
 	help
 	  This option enables support for the BlinkM RGB LED connected
 	  through I2C. Say Y to enable support for the BlinkM LED.
+config LEDS_aw2013rgb                                                                                               
+	 tristate "LED support for the BlinkM I2C RGB LED"
+     depends on LEDS_CLASS
+     depends on I2C
+     help
+       This option enables support for the BlinkM RGB LED connected
+       through I2C. Say Y to enable support for the BlinkM LED.
 
 config LEDS_AW2013
 	tristate "LED support for AW2013"

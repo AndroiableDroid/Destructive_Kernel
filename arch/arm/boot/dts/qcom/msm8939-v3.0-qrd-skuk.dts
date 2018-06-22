@@ -20,7 +20,7 @@
 / {
 	model = "Qualcomm Technologies, Inc. MSM8939v3.0 QRD SKUK";
 	compatible = "qcom,msm8939-qrd-skuk", "qcom,msm8939-qrd", "qcom,msm8939", "qcom,qrd";
-	qcom,board-id = <0x1000b 5>, <0x2000b 5>;
+	qcom,board-id = <0x1000b 20>, <0x2000b 20>;
 };
 
 &tlmm_pinmux {

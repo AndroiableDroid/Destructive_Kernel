@@ -415,6 +415,9 @@ enum msm_actuator_cfg_type_t {
 	CFG_ACTUATOR_POWERDOWN,
 	CFG_ACTUATOR_POWERUP,
 	CFG_ACTUATOR_INIT,
+/// ALTEK_actuator >>>
+	CFG_ACTUATOR_SET_BOUNDARY,
+/// ALTEK_actuator >>>
 };
 
 enum msm_ois_cfg_type_t {
@@ -534,7 +537,12 @@ struct msm_actuator_set_position_t {
 	uint16_t pos[MAX_NUMBER_OF_STEPS];
 	uint16_t delay[MAX_NUMBER_OF_STEPS];
 };
-
+/// ALTEK_actuator >>>
+struct msm_actuator_boundary_t {
+	uint16_t hall_min;
+	uint16_t hall_max;
+};
+/// ALTEK_actuator <<<
 struct msm_actuator_cfg_data {
 	int cfgtype;
 	uint8_t is_af_supported;
@@ -544,6 +552,9 @@ struct msm_actuator_cfg_data {
 		struct msm_actuator_get_info_t get_info;
 		struct msm_actuator_set_position_t setpos;
 		enum af_camera_name cam_name;
+/// ALTEK_actuator >>>
+		struct msm_actuator_boundary_t set_boundary;
+/// ALTEK_actuator >>>
 	} cfg;
 };
 
@@ -553,6 +564,7 @@ enum msm_camera_led_config_t {
 	MSM_CAMERA_LED_HIGH,
 	MSM_CAMERA_LED_INIT,
 	MSM_CAMERA_LED_RELEASE,
+	MSM_CAMERA_LED_PRE,
 };
 
 struct msm_camera_led_cfg_t {
@@ -695,6 +707,9 @@ struct msm_actuator_cfg_data32 {
 		struct msm_actuator_get_info_t get_info;
 		struct msm_actuator_set_position_t setpos;
 		enum af_camera_name cam_name;
+/// ALTEK_actuator >>>
+		struct msm_actuator_boundary_t set_boundary;
+/// ALTEK_actuator <<<
 	} cfg;
 };
 

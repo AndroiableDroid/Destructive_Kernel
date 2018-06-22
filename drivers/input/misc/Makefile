@@ -69,7 +69,8 @@ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
 obj-$(CONFIG_BMP18X)			+= bmp18x-core.o
 obj-$(CONFIG_BMP18X_I2C)		+= bmp18x-i2c.o
 obj-$(CONFIG_SENSORS_MMC3416X)		+= mmc3416x.o
-obj-$(CONFIG_SENSORS_MMC3X30)		+= mmc3x30.o
+obj-$(CONFIG_SENSORS_ST480_TEST_PLUS)     += st480_test_plus.o
+obj-$(CONFIG_SENSORS_ST480_TEST)     += st480_test.o
 obj-$(CONFIG_SENSORS_MMA8X5X)	  	+= mma8x5x.o
 obj-$(CONFIG_SENSORS_STK3X1X)		+= stk3x1x.o
 obj-$(CONFIG_SENSORS_CAPELLA_CM36283)	+= cm36283.o
@@ -90,6 +91,9 @@ obj-$(CONFIG_SENSORS_BMA2X2)	+= bma2x2.o
 obj-$(CONFIG_SENSORS_LTR553)	+= ltr553.o
 obj-$(CONFIG_SENSORS_LTR559)	+= ltr559-lc.o
 
+obj-$(CONFIG_SENSORS_BMA2X2)	+= bma2x2.o
+obj-$(CONFIG_SENSORS_LTR553_TEST_PLUS)	+= ltr553_test_plus.o
+obj-$(CONFIG_SENSORS_LTR553_TEST)	+= ltr553_test.o
 ifeq ($(CONFIG_SENSORS_BMA2X2_ENABLE_INT1),y)
 	EXTRA_CFLAGS += -DBMA2X2_ENABLE_INT1
 endif
@@ -128,3 +132,6 @@ obj-$(CONFIG_SENSORS_BMM050)    += bmm050_driver.o bmm050.o
 ifeq ($(CONFIG_SENSORS_BMM050),y)
 	EXTRA_CFLAGS += -DBMM_USE_BASIC_I2C_FUNC -DCONFIG_BMM_USE_PLATFORM_DATA
 endif
+obj-$(CONFIG_INPUT_LSM6DS3) += lsm6ds3.o
+lsm6ds3-y := lsm6ds3_core.o
+obj-$(CONFIG_INPUT_LSM6DS3_I2C) += lsm6ds3_i2c.o

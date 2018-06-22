@@ -107,6 +107,7 @@
 
 #define MODE_CMD	41
 #define RESET_ID	2
+#define POWER_OFF_ID    6
 
 #define FEATURE_MASK_LEN	2
 

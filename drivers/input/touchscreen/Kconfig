@@ -1160,6 +1160,8 @@ config INPUT_MT_WRAPPER
 
 	  If unsure, say N.
 
+source "drivers/input/touchscreen/melfas_mip4_test/Kconfig"
+
 config TOUCHSCREEN_IT7260_I2C
 	tristate "IT7260 Touchscreen Driver"
 	depends on I2C

@@ -5051,7 +5051,6 @@ int q6asm_set_mute(struct audio_client *ac, int muteflag)
 fail_cmd:
 	return rc;
 }
-
 static int __q6asm_set_volume(struct audio_client *ac, int volume, int instance)
 {
 	struct asm_volume_ctrl_master_gain vol;

@@ -11,6 +11,8 @@
  *
  */
 
+//#define DEBUG 1
+
 #include <linux/module.h>
 #include <linux/device.h>
 #include <linux/platform_device.h>
@@ -51,6 +53,12 @@
 #include <linux/qpnp/qpnp-adc.h>
 
 #include <linux/msm-bus.h>
+
+extern void setAcInstat(void);//wuboadd
+extern void acquire_AC_charger_wakelock(void);
+extern void set_android_charging_enable(void);
+extern void smb1360_set_usb_current_call(int current_limit_enable);
+extern int first_mic;
 
 #define MSM_USB_BASE	(motg->regs)
 #define MSM_USB_PHY_CSR_BASE (motg->phy_csr_regs)
@@ -1888,6 +1896,20 @@ static int msm_otg_notify_chg_type(struct msm_otg *motg)
 		return -EINVAL;
 	}
 
+	//wuboadd start
+    if(charger_type == POWER_SUPPLY_TYPE_USB_DCP){
+		set_android_charging_enable();
+		setAcInstat();
+		if (1 == first_mic) {
+			smb1360_set_usb_current_call(1);
+		}
+		acquire_AC_charger_wakelock();
+    }
+	if(charger_type == POWER_SUPPLY_TYPE_USB){
+		set_android_charging_enable();	
+	}
+	//wuboadd end
+
 	pr_debug("setting usb power supply type %d\n", charger_type);
 	msm_otg_dbg_log_event(&motg->phy, "SET USB PWR SUPPLY TYPE",
 			motg->chg_type, charger_type);
@@ -3391,9 +3413,6 @@ static void msm_otg_sm_work(struct work_struct *w)
 				case USB_PROPRIETARY_CHARGER:
 					msm_otg_notify_charger(motg,
 							IDEV_CHG_MAX);
-					otg->phy->state =
-						OTG_STATE_B_CHARGER;
-					work = 0;
 					msm_otg_dbg_log_event(&motg->phy,
 					"PM RUNTIME: PROPCHG PUT",
 					get_pm_runtime_counter(otg->phy->dev),
@@ -3403,9 +3422,6 @@ static void msm_otg_sm_work(struct work_struct *w)
 				case USB_FLOATED_CHARGER:
 					msm_otg_notify_charger(motg,
 							IDEV_CHG_MAX);
-					otg->phy->state =
-						OTG_STATE_B_CHARGER;
-					work = 0;
 					msm_otg_dbg_log_event(&motg->phy,
 					"PM RUNTIME: FLCHG PUT",
 					get_pm_runtime_counter(otg->phy->dev),
@@ -3624,16 +3640,6 @@ static void msm_otg_sm_work(struct work_struct *w)
 			}
 		} else if (test_bit(ID_C, &motg->inputs)) {
 			msm_otg_notify_charger(motg, IDEV_ACA_CHG_MAX);
-		}
-		break;
-	case OTG_STATE_B_CHARGER:
-		if (test_bit(B_SESS_VLD, &motg->inputs)) {
-			pr_debug("BSV set again\n");
-			msm_otg_dbg_log_event(&motg->phy, "BSV SET AGAIN",
-					motg->inputs, otg->phy->state);
-		} else if (!test_bit(B_SESS_VLD, &motg->inputs)) {
-			otg->phy->state = OTG_STATE_B_IDLE;
-			work = 1;
 		}
 		break;
 	case OTG_STATE_B_WAIT_ACON:

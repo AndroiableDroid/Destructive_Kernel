@@ -1914,6 +1914,8 @@ static void *def_msm8x16_wcd_mbhc_cal(void)
 #define S(X, Y) ((WCD_MBHC_CAL_PLUG_TYPE_PTR(msm8x16_wcd_cal)->X) = (Y))
 #ifdef CONFIG_MACH_CP8675
 	S(v_hs_max, 2550);
+#elif defined(CONFIG_TEST_ONLY)
+	S(v_hs_max, 1600);
 #else
 	S(v_hs_max, 1500);
 #endif
@@ -1961,6 +1963,17 @@ static void *def_msm8x16_wcd_mbhc_cal(void)
 	btn_high[3] = 112;
 	btn_low[4] = 137;
 	btn_high[4] = 137;
+#elif defined(CONFIG_TESTPLUS_ONLY)
+        btn_low[0] = 100;
+        btn_high[0] = 100;
+        btn_low[1] = 101;
+        btn_high[1] = 101;
+        btn_low[2] = 251;
+        btn_high[2] = 251;
+        btn_low[3] = 500;
+        btn_high[3] = 500;
+        btn_low[4] = 501;
+        btn_high[4] = 501;
 #else
 	btn_low[0] = 75;
 	btn_high[0] = 75;
