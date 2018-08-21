@@ -36,7 +36,7 @@
 
 /*
  * Targeted preemption latency for CPU-bound tasks:
- * (default: 6ms * (1 + ilog(ncpus)), units: nanoseconds)
+ * (default: 2ms * (1 + ilog(ncpus)), units: nanoseconds)
  *
  * NOTE: this latency value is not the same as the concept of
  * 'timeslice length' - timeslices in CFS are of variable length
@@ -50,8 +50,8 @@
 unsigned int sysctl_sched_latency = 3000000ULL;
 unsigned int normalized_sysctl_sched_latency = 3000000ULL;
 #else
-unsigned int sysctl_sched_latency = 6000000ULL;
-unsigned int normalized_sysctl_sched_latency = 6000000ULL;
+unsigned int sysctl_sched_latency = 2000000ULL;
+unsigned int normalized_sysctl_sched_latency = 2000000ULL;
 #endif
 
 /*
@@ -68,14 +68,14 @@ enum sched_tunable_scaling sysctl_sched_tunable_scaling
 
 /*
  * Minimal preemption granularity for CPU-bound tasks:
- * (default: 0.75 msec * (1 + ilog(ncpus)), units: nanoseconds)
+ * (default: 1 msec * (1 + ilog(ncpus)), units: nanoseconds)
  */
 #ifdef CONFIG_ZEN_INTERACTIVE
 unsigned int sysctl_sched_min_granularity = 300000ULL;
 unsigned int normalized_sysctl_sched_min_granularity = 300000ULL;
 #else
-unsigned int sysctl_sched_min_granularity = 750000ULL;
-unsigned int normalized_sysctl_sched_min_granularity = 750000ULL;
+unsigned int sysctl_sched_min_granularity = 1000000ULL;
+unsigned int normalized_sysctl_sched_min_granularity = 1000000ULL;
 #endif
 
 /*
@@ -84,7 +84,7 @@ unsigned int normalized_sysctl_sched_min_granularity = 750000ULL;
 #ifdef CONFIG_ZEN_INTERACTIVE
 static unsigned int sched_nr_latency = 10;
 #else
-static unsigned int sched_nr_latency = 8;
+static unsigned int sched_nr_latency = 2;
 #endif
 
 /*
@@ -137,12 +137,12 @@ unsigned int __read_mostly sysctl_sched_shares_window = 10000000UL;
  * to consumption or the quota being specified to be smaller than the slice)
  * we will always only issue the remaining available time.
  *
- * default: 5 msec, units: microseconds
+ * default: 2 msec, units: microseconds
   */
 #ifdef CONFIG_ZEN_INTERACTIVE
 unsigned int sysctl_sched_cfs_bandwidth_slice = 3000UL;
 #else
-unsigned int sysctl_sched_cfs_bandwidth_slice = 5000UL;
+unsigned int sysctl_sched_cfs_bandwidth_slice = 2000UL;
 #endif
 #endif
 

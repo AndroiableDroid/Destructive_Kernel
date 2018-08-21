@@ -1958,6 +1958,7 @@ static void *def_msm8x16_wcd_mbhc_cal(void)
 	btn_low[4] = 501;
 	btn_high[4] = 501;
 #endif
+	
 
 	return msm8x16_wcd_cal;
 }

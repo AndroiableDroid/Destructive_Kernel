@@ -631,7 +631,6 @@ config TESTPLUS_ONLY
         bool "testplus driver different flag "
 		help
 		    make macro CONFIG_TESTPLUS_ONLY WORKED
-
 source "drivers/power/reset/Kconfig"
 
 endif # POWER_SUPPLY

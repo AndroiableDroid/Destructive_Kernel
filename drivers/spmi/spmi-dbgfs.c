@@ -583,6 +583,7 @@ static ssize_t spmi_dfs_reg_read(struct file *file, char __user *buf,
 
 	*ppos += len;
 	log->rpos += len;
+
 unlock_mutex:
 	mutex_unlock(&trans->spmi_dfs_lock);
 	return len;
