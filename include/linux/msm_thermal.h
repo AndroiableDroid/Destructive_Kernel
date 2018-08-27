@@ -322,11 +322,6 @@ static inline void devmgr_unregister_mitigation_client(
 					struct device_clnt_data *clnt)
 {
 }
-static inline int msm_thermal_get_cluster_voltage_plan(uint32_t cluster,
-	uint32_t *table_ptr);
-{
-	return -ENOSYS;
-}
 #endif
 
 #endif /*__MSM_THERMAL_H*/
