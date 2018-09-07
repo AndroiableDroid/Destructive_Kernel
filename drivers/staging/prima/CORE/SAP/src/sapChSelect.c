@@ -1454,6 +1454,7 @@ void sapComputeSpectWeight( tSapChSelSpectInfo* pSpectInfoParams,
     tSapSpectChInfo *pSpectChStartAddr = pSpectInfoParams->pSpectCh;
     tSapSpectChInfo *pSpectChEndAddr =
                     pSpectInfoParams->pSpectCh + pSpectInfoParams->numSpectChans;
+    tSapSpectChInfo *pExtSpectCh = NULL;
 
     pBeaconStruct = vos_mem_malloc(sizeof(tSirProbeRespBeacon));
     if ( NULL == pBeaconStruct )
