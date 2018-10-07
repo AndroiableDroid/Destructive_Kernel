@@ -548,6 +548,7 @@ asmlinkage void __init start_kernel(void)
 	perf_event_init();
 	rcu_init();
 	tick_nohz_init();
+	rcu_init_nohz();
 	radix_tree_init();
 	/* init some links before init_ISA_irqs() */
 	early_irq_init();
@@ -764,8 +765,11 @@ static void __init do_initcalls(void)
 {
 	int level;
 
-	for (level = 0; level < ARRAY_SIZE(initcall_levels) - 1; level++)
+	for (level = 0; level < ARRAY_SIZE(initcall_levels) - 1; level++) {
 		do_initcall_level(level);
+		/* need to finish all async calls before going into next level */
+		async_synchronize_full();
+	}
 }
 
 /*

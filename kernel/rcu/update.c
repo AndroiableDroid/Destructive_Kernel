@@ -222,17 +222,6 @@ void wait_rcu_gp(call_rcu_func_t crf)
 }
 EXPORT_SYMBOL_GPL(wait_rcu_gp);
 
-#ifdef CONFIG_PROVE_RCU
-/*
- * wrapper function to avoid #include problems.
- */
-int rcu_my_thread_group_empty(void)
-{
-	return thread_group_empty(current);
-}
-EXPORT_SYMBOL_GPL(rcu_my_thread_group_empty);
-#endif /* #ifdef CONFIG_PROVE_RCU */
-
 #ifdef CONFIG_DEBUG_OBJECTS_RCU_HEAD
 static inline void debug_init_rcu_head(struct rcu_head *head)
 {
@@ -472,3 +461,21 @@ static int __init check_cpu_stall_init(void)
 early_initcall(check_cpu_stall_init);
 
 #endif /* #ifdef CONFIG_RCU_STALL_COMMON */
+
+/*
+ * Hooks for cond_resched() and friends to avoid RCU CPU stall warnings.
+ */
+
+DEFINE_PER_CPU(int, rcu_cond_resched_count);
+
+/*
+ * Report a set of RCU quiescent states, for use by cond_resched()
+ * and friends.  Out of line due to being called infrequently.
+ */
+void rcu_resched(void)
+{
+	preempt_disable();
+	__this_cpu_write(rcu_cond_resched_count, 0);
+	rcu_note_context_switch(smp_processor_id());
+	preempt_enable();
+}

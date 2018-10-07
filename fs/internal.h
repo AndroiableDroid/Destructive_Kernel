@@ -50,7 +50,7 @@ extern int __inode_permission(struct inode *, int);
  * namespace.c
  */
 extern int copy_mount_options(const void __user *, unsigned long *);
-extern int copy_mount_string(const void __user *, char **);
+extern char *copy_mount_string(const void __user *);
 
 extern struct vfsmount *lookup_mnt(struct path *);
 extern int finish_automount(struct vfsmount *, struct path *);
@@ -95,11 +95,12 @@ struct open_flags {
 	umode_t mode;
 	int acc_mode;
 	int intent;
+	int lookup_flags;
 };
 extern struct file *do_filp_open(int dfd, struct filename *pathname,
-		const struct open_flags *op, int flags);
+		const struct open_flags *op);
 extern struct file *do_file_open_root(struct dentry *, struct vfsmount *,
-		const char *, const struct open_flags *, int lookup_flags);
+		const char *, const struct open_flags *);
 
 extern long do_handle_open(int mountdirfd,
 			   struct file_handle __user *ufh, int open_flag);

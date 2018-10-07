@@ -71,6 +71,7 @@
 #include <linux/pid_namespace.h>
 #include <linux/security.h>
 #include <linux/spinlock.h>
+#include <linux/ratelimit.h>
 
 #include "binder.h"
 #include "binder_alloc.h"
@@ -166,13 +167,13 @@ module_param_call(stop_on_user_error, binder_set_stop_on_user_error,
 #define binder_debug(mask, x...) \
 	do { \
 		if (binder_debug_mask & mask) \
-			pr_info(x); \
+			pr_info_ratelimited(x); \
 	} while (0)
 
 #define binder_user_error(x...) \
 	do { \
 		if (binder_debug_mask & BINDER_DEBUG_USER_ERROR) \
-			pr_info(x); \
+			pr_info_ratelimited(x); \
 		if (binder_stop_on_user_error) \
 			binder_stop_on_user_error = 2; \
 	} while (0)
@@ -252,7 +253,7 @@ static struct binder_transaction_log_entry *binder_transaction_log_add(
 	if (cur >= ARRAY_SIZE(log->entry))
 		log->full = true;
 	e = &log->entry[cur % ARRAY_SIZE(log->entry)];
-	ACCESS_ONCE(e->debug_id_done) = 0;
+	WRITE_ONCE(e->debug_id_done, 0);
 	/*
 	 * write-barrier to synchronize access to e->debug_id_done.
 	 * We make sure the initialized 0 value is seen before
@@ -269,6 +270,7 @@ struct binder_context {
 
 	kuid_t binder_context_mgr_uid;
 	const char *name;
+	bool inherit_fifo_prio;
 };
 
 struct binder_device {
@@ -1242,6 +1244,7 @@ static void binder_transaction_priority(struct task_struct *task,
 					struct binder_priority node_prio,
 					bool inherit_rt)
 {
+	bool inherit_fifo = t->buffer->target_node->proc->context->inherit_fifo_prio;
 	struct binder_priority desired_prio;
 
 	if (t->set_priority_called)
@@ -1251,7 +1254,7 @@ static void binder_transaction_priority(struct task_struct *task,
 	t->saved_priority.sched_policy = task->policy;
 	t->saved_priority.prio = task->normal_prio;
 
-	if (!inherit_rt && is_rt_policy(desired_prio.sched_policy)) {
+	if (!inherit_rt && is_rt_policy(desired_prio.sched_policy) && !inherit_fifo) {
 		desired_prio.prio = NICE_TO_PRIO(0);
 		desired_prio.sched_policy = SCHED_NORMAL;
 	} else {
@@ -3393,7 +3396,7 @@ static void binder_transaction(struct binder_proc *proc,
 	 * of log entry
 	 */
 	smp_wmb();
-	ACCESS_ONCE(e->debug_id_done) = t_debug_id;
+	WRITE_ONCE(e->debug_id_done, t_debug_id);
 	return;
 
 err_dead_proc_or_thread:
@@ -3451,8 +3454,8 @@ err_invalid_target_handle:
 		 * of log entry
 		 */
 		smp_wmb();
-		ACCESS_ONCE(e->debug_id_done) = t_debug_id;
-		ACCESS_ONCE(fe->debug_id_done) = t_debug_id;
+		WRITE_ONCE(e->debug_id_done, t_debug_id);
+		WRITE_ONCE(fe->debug_id_done, t_debug_id);
 	}
 
 	BUG_ON(thread->return_error.cmd != BR_OK);
@@ -3891,7 +3894,8 @@ static int binder_thread_write(struct binder_proc *proc,
 			}
 			binder_debug(BINDER_DEBUG_DEAD_BINDER,
 				     "%d:%d BC_DEAD_BINDER_DONE %016llx found %pK\n",
-				     proc->pid, thread->pid, (u64)cookie, death);
+				     proc->pid, thread->pid, (u64)cookie,
+				     death);
 			if (death == NULL) {
 				binder_user_error("%d:%d BC_DEAD_BINDER_DONE %016llx not found\n",
 					proc->pid, thread->pid, (u64)cookie);
@@ -4667,6 +4671,34 @@ out:
 	return ret;
 }
 
+static int binder_ioctl_set_inherit_fifo_prio(struct file *filp)
+{
+	int ret = 0;
+	struct binder_proc *proc = filp->private_data;
+	struct binder_context *context = proc->context;
+
+	kuid_t curr_euid = current_euid();
+	mutex_lock(&context->context_mgr_node_lock);
+
+	if (uid_valid(context->binder_context_mgr_uid)) {
+		if (!uid_eq(context->binder_context_mgr_uid, curr_euid)) {
+			pr_err("BINDER_SET_INHERIT_FIFO_PRIO bad uid %d != %d\n",
+			       from_kuid(&init_user_ns, curr_euid),
+			       from_kuid(&init_user_ns,
+					 context->binder_context_mgr_uid));
+			ret = -EPERM;
+			goto out;
+		}
+	}
+
+	context->inherit_fifo_prio = true;
+
+ out:
+	mutex_unlock(&context->context_mgr_node_lock);
+	return ret;
+}
+
+
 static int binder_ioctl_set_ctx_mgr(struct file *filp)
 {
 	int ret = 0;
@@ -4787,6 +4819,13 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		if (ret)
 			goto err;
 		break;
+
+	case BINDER_SET_INHERIT_FIFO_PRIO:
+		ret = binder_ioctl_set_inherit_fifo_prio(filp);
+		if (ret)
+			goto err;
+		break;
+
 	case BINDER_THREAD_EXIT:
 		binder_debug(BINDER_DEBUG_THREADS, "%d:%d exit\n",
 			     proc->pid, thread->pid);
@@ -5543,6 +5582,7 @@ static void print_binder_proc_stats(struct seq_file *m,
 
 	seq_printf(m, "proc %d\n", proc->pid);
 	seq_printf(m, "context %s\n", proc->context->name);
+	seq_printf(m, "context FIFO: %d\n", proc->context->inherit_fifo_prio);
 	count = 0;
 	ready_threads = 0;
 	binder_inner_proc_lock(proc);
@@ -5682,7 +5722,7 @@ static int binder_proc_show(struct seq_file *m, void *unused)
 static void print_binder_transaction_log_entry(struct seq_file *m,
 					struct binder_transaction_log_entry *e)
 {
-	int debug_id = ACCESS_ONCE(e->debug_id_done);
+	int debug_id = READ_ONCE(e->debug_id_done);
 	/*
 	 * read barrier to guarantee debug_id_done read before
 	 * we print the log values
@@ -5701,7 +5741,7 @@ static void print_binder_transaction_log_entry(struct seq_file *m,
 	 * done printing the fields of the entry
 	 */
 	smp_rmb();
-	seq_printf(m, debug_id && debug_id == ACCESS_ONCE(e->debug_id_done) ?
+	seq_printf(m, debug_id && debug_id == READ_ONCE(e->debug_id_done) ?
 			"\n" : " (incomplete)\n");
 }
 
@@ -5773,7 +5813,7 @@ static int __init init_binder_device(const char *name)
 static int __init binder_init(void)
 {
 	int ret;
-	char *device_name, *device_names;
+	char *device_name, *device_names, *device_tmp;
 	struct binder_device *device;
 	struct hlist_node *tmp;
 
@@ -5827,7 +5867,8 @@ static int __init binder_init(void)
 	}
 	strcpy(device_names, binder_devices_param);
 
-	while ((device_name = strsep(&device_names, ","))) {
+	device_tmp = device_names;
+	while ((device_name = strsep(&device_tmp, ","))) {
 		ret = init_binder_device(device_name);
 		if (ret)
 			goto err_init_binder_device_failed;
@@ -5841,6 +5882,9 @@ err_init_binder_device_failed:
 		hlist_del(&device->hlist);
 		kfree(device);
 	}
+
+	kfree(device_names);
+
 err_alloc_device_names_failed:
 	debugfs_remove_recursive(binder_debugfs_dir_entry_root);
 

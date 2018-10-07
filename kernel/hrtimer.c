@@ -230,7 +230,7 @@ again:
 		 * completed. There is no conflict as we hold the lock until
 		 * the timer is enqueued.
 		 */
-		if (unlikely(hrtimer_callback_running(timer)))
+		if (unlikely(hrtimer_callback_running_relaxed(timer)))
 			return base;
 
 		/* See the comment in lock_timer_base() */
@@ -655,7 +655,7 @@ static int hrtimer_reprogram(struct hrtimer *timer,
 	 * reprogramming is handled either by the softirq, which called the
 	 * callback or at the end of the hrtimer_interrupt.
 	 */
-	if (hrtimer_callback_running(timer))
+	if (hrtimer_callback_running_relaxed(timer))
 		return 0;
 
 	/*
@@ -703,6 +703,7 @@ static int hrtimer_reprogram(struct hrtimer *timer,
 static inline void hrtimer_init_hres(struct hrtimer_cpu_base *base)
 {
 	base->expires_next.tv64 = KTIME_MAX;
+	base->hang_detected = 0;
 	base->hres_active = 0;
 }
 
@@ -1107,7 +1108,7 @@ int hrtimer_try_to_cancel(struct hrtimer *timer)
 
 	base = lock_hrtimer_base(timer, &flags);
 
-	if (!hrtimer_callback_running(timer))
+	if (!hrtimer_callback_running_relaxed(timer))
 		ret = remove_hrtimer(timer, base);
 
 	unlock_hrtimer_base(timer, &flags);
@@ -1660,6 +1661,7 @@ static void __cpuinit init_hrtimers_cpu(int cpu)
 		timerqueue_init_head(&cpu_base->clock_base[i].active);
 	}
 
+	cpu_base->active_bases = 0;
 	hrtimer_init_hres(cpu_base);
 }
 
@@ -1673,7 +1675,7 @@ static void migrate_hrtimer_list(struct hrtimer_clock_base *old_base,
 
 	while ((node = timerqueue_getnext(&old_base->active))) {
 		timer = container_of(node, struct hrtimer, node);
-		BUG_ON(hrtimer_callback_running(timer));
+		BUG_ON(hrtimer_callback_running_relaxed(timer));
 		debug_deactivate(timer);
 
 		/*

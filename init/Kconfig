@@ -98,10 +98,13 @@ config HAVE_KERNEL_XZ
 config HAVE_KERNEL_LZO
 	bool
 
+config HAVE_KERNEL_LZ4
+	bool
+
 choice
 	prompt "Kernel compression mode"
 	default KERNEL_GZIP
-	depends on HAVE_KERNEL_GZIP || HAVE_KERNEL_BZIP2 || HAVE_KERNEL_LZMA || HAVE_KERNEL_XZ || HAVE_KERNEL_LZO
+	depends on HAVE_KERNEL_GZIP || HAVE_KERNEL_BZIP2 || HAVE_KERNEL_LZMA || HAVE_KERNEL_XZ || HAVE_KERNEL_LZO || HAVE_KERNEL_LZ4
 	help
 	  The linux kernel is a kind of self-extracting executable.
 	  Several compression algorithms are available, which differ
@@ -167,6 +170,18 @@ config KERNEL_LZO
 	  Its compression ratio is the poorest among the choices. The kernel
 	  size is about 10% bigger than gzip; however its speed
 	  (both compression and decompression) is the fastest.
+
+config KERNEL_LZ4
+	bool "LZ4"
+	depends on HAVE_KERNEL_LZ4
+	help
+	  LZ4 is an LZ77-type compressor with a fixed, byte-oriented encoding.
+	  A preliminary version of LZ4 de/compression tool is available at
+	  <https://code.google.com/p/lz4/>.
+
+	  Its compression ratio is worse than LZO. The size of the kernel
+	  is about 8% bigger than LZO. But the decompression speed is
+	  faster than LZO.
 
 endchoice
 
@@ -614,30 +629,32 @@ config RCU_BOOST
 	  Say Y here if you are working with real-time apps or heavy loads
 	  Say N here if you are unsure.
 
-config RCU_BOOST_PRIO
-	int "Real-time priority to boost RCU readers to"
-	range 1 99
-	depends on RCU_BOOST
-	default 1
+config RCU_KTHREAD_PRIO
+	int "Real-time priority to use for RCU worker threads"
+	range 1 99 if RCU_BOOST
+	range 0 99 if !RCU_BOOST
+	default 1 if RCU_BOOST
+	default 0 if !RCU_BOOST
 	help
-	  This option specifies the real-time priority to which long-term
-	  preempted RCU readers are to be boosted.  If you are working
-	  with a real-time application that has one or more CPU-bound
-	  threads running at a real-time priority level, you should set
-	  RCU_BOOST_PRIO to a priority higher then the highest-priority
-	  real-time CPU-bound thread.  The default RCU_BOOST_PRIO value
-	  of 1 is appropriate in the common case, which is real-time
+	  This option specifies the SCHED_FIFO priority value that will be
+	  assigned to the rcuc/n and rcub/n threads and is also the value
+	  used for RCU_BOOST (if enabled). If you are working with a
+	  real-time application that has one or more CPU-bound threads
+	  running at a real-time priority level, you should set
+	  RCU_KTHREAD_PRIO to a priority higher than the highest-priority
+	  real-time CPU-bound application thread.  The default RCU_KTHREAD_PRIO
+	  value of 1 is appropriate in the common case, which is real-time
 	  applications that do not have any CPU-bound threads.
 
 	  Some real-time applications might not have a single real-time
 	  thread that saturates a given CPU, but instead might have
 	  multiple real-time threads that, taken together, fully utilize
-	  that CPU.  In this case, you should set RCU_BOOST_PRIO to
+	  that CPU.  In this case, you should set RCU_KTHREAD_PRIO to
 	  a priority higher than the lowest-priority thread that is
 	  conspiring to prevent the CPU from running any non-real-time
 	  tasks.  For example, if one thread at priority 10 and another
 	  thread at priority 5 are between themselves fully consuming
-	  the CPU time on a given CPU, then RCU_BOOST_PRIO should be
+	  the CPU time on a given CPU, then RCU_KTHREAD_PRIO should be
 	  set to priority 6 or higher.
 
 	  Specify the real-time priority, or take the default if unsure.
@@ -688,7 +705,7 @@ choice
 
 config RCU_NOCB_CPU_NONE
 	bool "No build_forced no-CBs CPUs"
-	depends on RCU_NOCB_CPU && !NO_HZ_FULL
+	depends on RCU_NOCB_CPU
 	help
 	  This option does not force any of the CPUs to be no-CBs CPUs.
 	  Only CPUs designated by the rcu_nocbs= boot parameter will be
@@ -696,7 +713,7 @@ config RCU_NOCB_CPU_NONE
 
 config RCU_NOCB_CPU_ZERO
 	bool "CPU 0 is a build_forced no-CBs CPU"
-	depends on RCU_NOCB_CPU && !NO_HZ_FULL
+	depends on RCU_NOCB_CPU
 	help
 	  This option forces CPU 0 to be a no-CBs CPU.  Additional CPUs
 	  may be designated as no-CBs CPUs using the rcu_nocbs= boot
