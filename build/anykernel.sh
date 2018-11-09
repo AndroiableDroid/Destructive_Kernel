@@ -47,15 +47,19 @@ ramdisk() {
   gzip -dc ../boot.img-ramdisk.gz | cpio -i;
   rm -rf ../boot.img-ramdisk.gz;
   if [[ ! -f "/system/vendor/etc/fstab.qcom" ]]; then
-  cp $project $ramdisk;
+   cp $project $ramdisk;
   else
-  cp /tmp/anykernel/project_o/*.rc $ramdisk;
+   if [[ ! -f "/system/vendor/etc/init/hw/init.qcom.power.rc" ]]; then 
+    cp /tmp/anykernel/ramdisk/*.rc $ramdisk;
+   else
+    cp /tmp/anykernel/ramdisk/*.rc /system/vendor/etc/init/hw/;
+   fi
   fi
   find . | cpio -o -H newc | gzip > ../boot.img-ramdisk.gz
   ui_print "Ramdisk Fixing Done";
 
 }
-  
+
 
 # repack ramdisk then build and write image
 write_boot() {
