@@ -35,7 +35,7 @@ if [[ ! -d $KERNEL_DIR/build/dt_o ]]; then
 	mkdir $KERNEL_DIR/build/dt_o
 fi
 
-make $J clean mrproper
+#make $J clean mrproper
 
 # Get Toolchain
 Toolchain=$KERNEL_DIR/../Toolchain
@@ -68,17 +68,17 @@ export USE_CCACHE=1
 BUILD_DIR=$KERNEL_DIR/build
 VERSION="X10"
 DATE=$(date -u +%Y%m%d-%H%M)
-ZIP_NAME=Nichrome-$DEVICE-$VERSION-$DATE
+ZIP_NAME=Destructive-$DEVICE-$VERSION-$DATE
 
 compile_kernel ()
 {
 echo -e "$cyan****************************************************"
-echo "             Compiling Nichrome kernel        "
+echo "             Compiling Destructive kernel        "
 echo -e "****************************************************"
 echo -e "$nocol"
 rm -f $KERN_IMG
-make nichrome_defconfig
-make $J
+make destructive_defconfig
+make -j4
 echo "$cyan Making dt.img"
 echo -e "$nocol"
 $DTBTOOL -2 -o $KERNEL_DIR/arch/arm64/boot/dt.img -s 2048 -p $KERNEL_DIR/scripts/dtc/ $KERNEL_DIR/arch/arm/boot/dts/
