@@ -35,7 +35,7 @@ if [[ ! -d $KERNEL_DIR/build/dt_o ]]; then
 	mkdir $KERNEL_DIR/build/dt_o
 fi
 
-#make $J clean mrproper
+make $J clean mrproper
 
 # Get Toolchain
 Toolchain=$KERNEL_DIR/../Toolchain
@@ -66,7 +66,7 @@ export KBUILD_BUILD_USER="Faraz"
 export KBUILD_BUILD_HOST="TimeMachine"
 export USE_CCACHE=1
 BUILD_DIR=$KERNEL_DIR/build
-VERSION="X10"
+VERSION="XI"
 DATE=$(date -u +%Y%m%d-%H%M)
 ZIP_NAME=Destructive-$DEVICE-$VERSION-$DATE
 
