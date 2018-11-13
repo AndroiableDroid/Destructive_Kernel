@@ -1,7 +1,7 @@
-on boot
+on enable-low-power
     start qcom-mem
 
-    write /proc/sys/kernel/sched_boost 0
+    write /proc/sys/kernel/sched_boost 1
 
     # RPS mask
     write /sys/class/net/rmnet0/queues/rx-0/rps_cpus 10
@@ -11,11 +11,9 @@ on boot
     write /proc/sys/kernel/sched_ravg_hist_size 5
 
     # HMP Task packing settings for 8939, 8929
-    write /proc/sys/kernel/sched_small_task 65
-    write /proc/sys/kernel/sched_mostly_idle_load 25
-    write /sys/devices/system/cpu/cpu0/sched_mostly_idle_freq 960000
-    write /proc/sys/kernel/sched_mostly_idle_nr_run 4
-    write /proc/sys/kernel/sched_upmigrate_min_nice 8
+    write /proc/sys/kernel/sched_small_task 20
+    write /proc/sys/kernel/sched_mostly_idle_load 30
+    write /proc/sys/kernel/sched_mostly_idle_nr_run 3
 
     write /sys/class/devfreq/cpubw/governor "bw_hwmon"
     write /sys/class/devfreq/cpubw/bw_hwmon/io_percent 20
@@ -28,54 +26,53 @@ on boot
     # Enable governor for perf cluster
     write /sys/devices/system/cpu/cpu0/online 1
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "interactive"
-    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay "40000 345600:30000 400000:40000 533333:50000 800000:60000 960000:70000 1113600:70000 1344000:80000"
-    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load 111
-    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate 40000
-    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq 200000
+    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay "20000 1113600:50000"
+    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load 85
+    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate 20000
+    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq 1113600
     write /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy 0
-    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads "70 345600:73 400000:75 533333:80 800000:95 960000:90 1113600:95 1344000:99"
-    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time 40000
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 200000
-    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/fast_ramp_down 1
-    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_slack 20000
+    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads "1 960000:85 1113600:90 1344000:80"
+    write /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time 50000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 960000
 
     # Enable governor for power cluster
     write /sys/devices/system/cpu/cpu4/online 1
     write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor "interactive"
-    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay "40000 249600:27000 499200:30000 800000:45000 998400:55000 1113600:70000"
-    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load 111
+    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay "25000 800000:50000"
+    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load 90
     write /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_rate 40000
-    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq 200000
+    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq 998400
     write /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy 0
-    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads "70 249600:75 499200:80 800000:85 998400:95 1113600:99"
+    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads "1 800000:90"
     write /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time 40000
-    write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq 200000
-    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/fast_ramp_down 1
-    write /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_slack 20000
+    write /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq 800000
 
     # Enable thermal core_control now
+    write /sys/kernel/msm_thermal/zone0 "1152000 64 61"
+    write /sys/kernel/msm_thermal/zone1 "1094400 68 65"
+    write /sys/kernel/msm_thermal/zone2 "8000000 70 69"
+    write /sys/kernel/msm_thermal/zone3 "533333 73 71"
+    write /sys/kernel/msm_thermal/zone4 "400000 77 74"
+    write /sys/module/msm_thermal/core_control/enabled 1
+    write /sys/kernel/msm_thermal/sampling_ms 1000
     write /sys/module/msm_thermal/core_control/enabled 1
 
     # Enable core control
     write /sys/devices/system/cpu/cpu0/core_ctl/min_cpus 0
     write /sys/devices/system/cpu/cpu0/core_ctl/max_cpus 4
-    write /sys/devices/system/cpu/cpu0/core_ctl/busy_up_thres 77
-    write /sys/devices/system/cpu/cpu0/core_ctl/busy_down_thres 90
-    write /sys/devices/system/cpu/cpu0/core_ctl/offline_delay_ms "400 400 100 100"
-    write /sys/devices/system/cpu/cpu0/core_ctl/online_delay_ms "1000 5000 6000 6000"
+    write /sys/devices/system/cpu/cpu0/core_ctl/busy_up_thres 68
+    write /sys/devices/system/cpu/cpu0/core_ctl/busy_down_thres 40
+    write /sys/devices/system/cpu/cpu0/core_ctl/offline_delay_ms 100
     write /sys/devices/system/cpu/cpu0/core_ctl/task_thres 4
     write /sys/devices/system/cpu/cpu0/core_ctl/is_big_cluster 1
-    write /sys/devices/system/cpu/cpu0/core_ctl/not_preferred "1 1 1 1"
-
-    write /sys/devices/system/cpu/cpu4/core_ctl/disable 1
-    chown system:system /sys/devices/system/cpu/cpu4/core_ctl/min_cpus
-    chown system:system /sys/devices/system/cpu/cpu4/core_ctl/max_cpus
-    chown system:system /sys/devices/system/cpu/cpu0/core_ctl/min_cpus
-    chown system:system /sys/devices/system/cpu/cpu0/core_ctl/min_cpus
+    write /sys/devices/system/cpu/cpu4/core_ctl/busy_up_thres 20
+    write /sys/devices/system/cpu/cpu4/core_ctl/busy_down_thres 5
+    write /sys/devices/system/cpu/cpu4/core_ctl/offline_delay_ms 5000
+    write /sys/devices/system/cpu/cpu4/core_ctl/not_preferred 1
 
     # HMP scheduler (big.Little cluster related) settings
-    write /proc/sys/kernel/sched_upmigrate 98
-    write /proc/sys/kernel/sched_downmigrate 80
+    write /proc/sys/kernel/sched_upmigrate 75
+    write /proc/sys/kernel/sched_downmigrate 60
 
     # Bring all CPUs online
     write /sys/devices/system/cpu/cpu1/online 1
@@ -97,8 +94,7 @@ on boot
 
     # Update foreground and background cpusets
     # Reserve CPU 7 for the top app
-    write /dev/cpuset/foreground/cpus 4-7
-    write /dev/cpuset/foreground/boost/cpus 0-3
+    write /dev/cpuset/foreground/cpus 0-6
     write /dev/cpuset/background/cpus 4-6
     write /dev/cpuset/system-background/cpus 4-6
     write /dev/cpuset/top-app/cpus 0-7
@@ -111,13 +107,6 @@ on charger
     write /sys/module/lpm_levels/parameters/sleep_disabled 0
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
 
-on class_start:late_start
-    trigger enable-low-power
-
-on property:init.svc.recovery=running
-    trigger enable-low-power
-
 on property:dev.bootcomplete=1
+    trigger enable-low-power
     setprop sys.io.scheduler bfq
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "interactive"
-    write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor "interactive"
