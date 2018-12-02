@@ -226,11 +226,14 @@ if(temp_safety==1){
 	    cpu_offline_wrapper(1);
 		cpu_offline_wrapper(2);
 		cpu_offline_wrapper(3);}
-	if (temp >= (corecontrol + 6)){
+ if (enabled==1){
+	if (temp >= (corecontrol)){
+		cpu_offline_wrapper(0);}
+    if (temp >= (corecontrol + 6)){
 	    cpu_offline_wrapper(4);
 		cpu_offline_wrapper(5);}
 }
-
+}
 
 /* CPU Plugging */
 if(temp_safety==1){
@@ -248,9 +251,6 @@ if(temp_safety==1){
 /* Quad core Mode */
 if(enabled==1){
 		cpu_online_wrapper(1);
-		if(temp_safety==1){
-	    if (temp > (corecontrol)){
-		cpu_offline_wrapper(1);}}
 	    cpu_offline_wrapper(2);
 		cpu_offline_wrapper(3);
 	    cpu_offline_wrapper(4);
