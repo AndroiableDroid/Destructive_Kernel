@@ -241,8 +241,7 @@ if(temp_safety==1){
     if (temp < (corecontrol + 6)){
 	    cpu_online_wrapper(4);
 		cpu_online_wrapper(5);
-		cpu_online_wrapper(6);
-		cpu_online_wrapper(7);}
+		cpu_online_wrapper(6);}
 }
 
 
