@@ -81,7 +81,7 @@ int LEVEL_HELL = _temp_threshold + (_temp_step * 3);
 int FREQ_HELL = 800000;
 int FREQ_VERY_HOT = 1113600;
 int FREQ_HOT = 1344000;
-int FREQ_WARM = 1459200;
+int FREQ_WARM = 1497600;
 
 static int set_temp_threshold(const char *val, const struct kernel_param *kp)
 {
@@ -282,6 +282,7 @@ static void check_temp(struct work_struct *work)
 			goto reschedule;
 		}
 	}
+
     if (temp >= LEVEL_HELL)
 		freq = FREQ_HELL;
 	else if (temp >= LEVEL_VERY_HOT)
@@ -290,6 +291,7 @@ static void check_temp(struct work_struct *work)
 		freq = FREQ_HOT;
 	else if (temp >= TEMP_THRESHOLD)
 		freq = FREQ_WARM;
+
 	if (freq) {
 		limit_cpu_freqs(freq);
 
@@ -298,42 +300,23 @@ static void check_temp(struct work_struct *work)
 	}
 	
    if(TEMP_SAFETY==1){
-	if (temp >= 80){
+ 	if (temp >= 69){
+ 	    cpu_offline_wrapper(6);
+ 		cpu_offline_wrapper(7);
  		cpu_offline_wrapper(1);
  		cpu_offline_wrapper(2);
- 		cpu_offline_wrapper(3);
- 		cpu_offline_wrapper(4);
- 		cpu_offline_wrapper(5);
- 	    cpu_offline_wrapper(6);
- 		cpu_offline_wrapper(7);
-	}
- 	else if (temp >= 69){
-		cpu_offline_wrapper(1);
- 		cpu_offline_wrapper(2);
- 		cpu_offline_wrapper(3);
- 		cpu_online_wrapper(4);
- 		cpu_online_wrapper(5);
- 	    cpu_offline_wrapper(6);
- 		cpu_offline_wrapper(7);
- 	}
+ 		cpu_offline_wrapper(3);}
  	else if (temp >= 63){
- 	    cpu_offline_wrapper(1);
- 		cpu_offline_wrapper(2);
- 		cpu_offline_wrapper(3);
- 		cpu_online_wrapper(4);
- 		cpu_online_wrapper(5);
 		cpu_online_wrapper(6);
  		cpu_online_wrapper(7);
- 	}
+ 	    cpu_offline_wrapper(1);
+ 		cpu_offline_wrapper(2);
+ 		cpu_offline_wrapper(3);}
  	else if (temp < 63){
         cpu_online_wrapper(1);
  		cpu_online_wrapper(2);
  		cpu_online_wrapper(3);
- 		cpu_online_wrapper(4);
- 		cpu_online_wrapper(5);
-		cpu_online_wrapper(6);
- 		cpu_online_wrapper(7);
-	}
+	           }
  }
  
 reschedule:
