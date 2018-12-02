@@ -101,17 +101,6 @@ module_param(FREQ_ZONE, int, 0644);
 unsigned int temp_step = 3;
 module_param(temp_step, int, 0644);
 
-/* Poll Interval */
-unsigned int poll_interval = 2,000,000;
-module_param(poll_interval, int, 0644);
-
-/* Core control temp */
-int corecontrol = 60;
-
-/* CPU Hotplugging Switch */
-unsigned int enabled = 1;
-module_param(enabled, int, 0644);
-
 static struct msm_thermal_data msm_thermal_info;
 static struct delayed_work check_temp_work;
 static struct workqueue_struct *thermal_wq;
