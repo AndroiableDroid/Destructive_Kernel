@@ -98,7 +98,7 @@ module_param(FREQ_ZONE, int, 0644);
 
 
 /* Diferrence */
-unsigned int temp_step = 4;
+unsigned int temp_step = 3;
 module_param(temp_step, int, 0644);
 
 /* Poll Interval */
