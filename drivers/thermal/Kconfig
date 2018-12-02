@@ -120,28 +120,32 @@ config LIMITS_LITE_HW
 
 choice
 	prompt "MSM Thermal Monitor Types"
-	default CONFIG_ARB_THERMAL
+	default FRANCO_THERMAL
 
 config THERMAL_MONITOR
-	bool "Monitor thermal state and limit CPU Frequency"
-	depends on THERMAL_TSENS8960 || THERMAL_TSENS8974
-	depends on CPU_FREQ || CPU_FREQ_MSM
-	help
-	  This enables thermal monitoring capability in the kernel in the
-	  absence of a system wide thermal monitoring entity or until such an
-	  entity starts running in the userspace. Monitors TSENS temperature
-	  and limits the max frequency of the cores.
+       bool "Monitor thermal state and limit CPU Frequency"
+       depends on THERMAL_TSENS8960 || THERMAL_TSENS8974
+       depends on CPU_FREQ || CPU_FREQ_MSM
+       help
+	This enables thermal monitoring capability in the kernel in the absence of a system wide thermal monitoring entity or until such an entity starts running in the userspace. Monitors TSENS temperature and limits the max frequency of the cores.
 
-config CONFIG_ARB_THERMAL
-	bool "Better thermal monitor for MSM"
-	depends on THERMAL_TSENS8974
-	depends on CPU_FREQ_MSM
-	help
-	  This enables thermal monitoring capability in the kernel. It
-	  Monitors TSENS temperature and limits the max frequency of the 
-	  core to a certified value.
+config FRANCO_THERMAL
+       bool "Franco's Thermal Driver"
+       depends on THERMAL_TSENS8960 || THERMAL_TSENS8974
+       depends on CPU_FREQ || CPU_FREQ_MSM
+       help
+	   This enables thermal monitoring capability in the kernel in the absence of a system wide thermal monitoring entity or until such an entity starts running in the userspace. Monitors TSENS temperature and limits the max frequency of the cores based on 2 thresholds of temperature.
 
 endchoice
+
+config CORE_CONTROL
+       bool "Shoaib's Core Control, a Thermal HotPlug."
+       depends on FRANCO_THERMAL
+       default y
+       help
+	    A Thermal Based Automatic HotPlug Driver capable of disabling 
+            the whole big Cluster for better Heat management, 
+	    built by Shoaib0597 a.k.a. Shoaib0597.
 
 config SUPPLY_LM_MONITOR
 	bool "SUPPLY current monitor driver"
