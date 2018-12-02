@@ -54,14 +54,9 @@ static struct delayed_work AiO_work;
 static struct workqueue_struct *AiO_wq;
 
 int AiO_HotPlug;
-#ifdef CONFIG_ARB_THERMAL
 extern int TEMP_SAFETY;
-#endif
 #ifdef CONFIG_ALUCARD_HOTPLUG
 extern int alucard;
-#endif
-#ifdef CONFIG_MSM_CORE_CTL
-extern int gswitch;
 #endif
 
 static void __ref AiO_HotPlug_work(struct work_struct *work)
@@ -289,18 +284,12 @@ static ssize_t store_toggle(struct kobject *kobj,
 	if (ret != 1 || val < 0 || val > 1)
 	   return -EINVAL;
 	
-#ifdef CONFIG_ARB_THERMAL   
-    if (TEMP_SAFETY)
-		return -EINVAL;
-#endif
+	if (TEMP_SAFETY)
+	   return -EINVAL;
 #ifdef CONFIG_ALUCARD_HOTPLUG
 	if (alucard)
 	   return -EINVAL; 
 #endif	
-#ifdef CONFIG_MSM_CORE_CTL
-	if (!gswitch)
-	   return -EINVAL; 
-#endif
 	if (val == AiO.toggle)
 	   return count;
 
