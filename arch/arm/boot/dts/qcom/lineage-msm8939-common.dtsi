@@ -34,6 +34,10 @@
 		android,ramoops-record-size = <0x40000>;
 		android,ramoops-annotate-size = <0x1000>;
 		android,ramoops-dump-oops = <0x1>;
+		android,ramoops-hole {
+			compatible = "qcom,msm-contig-mem";
+			qcom,memblock-reserve = <0xdfe00000 0x00200000>;
+		};
 	};
 
 };	
