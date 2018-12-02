@@ -25,8 +25,12 @@
 #include <linux/msm_thermal.h>
 #include <linux/platform_device.h>
 #include <linux/of.h>
+#include <linux/thundercharge_control.h>
 #define _temp_threshold		50
 #define _temp_step	3
+#ifdef CONFIG_THUNDERCHARGE_CONTROL
+#define customcurrent 1350
+#endif
 
 static struct thermal_info {
 	uint32_t cpuinfo_max_freq;
@@ -43,6 +47,7 @@ static struct thermal_info {
 };
 
 int TEMP_SAFETY = 1;
+static struct kobject *cc_kobj;
 int TEMP_THRESHOLD = _temp_threshold;
 int TEMP_STEP = _temp_step;
 int LEVEL_VERY_HOT = _temp_threshold + _temp_step;
@@ -55,8 +60,8 @@ int FREQ_WARM = 1459200;
 #ifdef CONFIG_AiO_HotPlug
 extern int AiO_HotPlug;
 #endif
-#ifdef CONFIG_ALUCARD_HOTPLUG
-extern int alucard;
+#ifdef CONFIG_THUNDERCHARGE_CONTROL
+int custom_current = customcurrent;
 #endif
 
 static struct msm_thermal_data msm_thermal_info;
@@ -183,6 +188,19 @@ static void __ref check_temp(struct work_struct *work)
 	}
  }
  
+#ifdef CONFIG_THUNDERCHARGE_CONTROL
+if (mswitch == 1){
+    if (temp >= 70)
+		customcurrent == 1000;
+	else if (temp >= 60)
+		customcurrent == 1250;
+	else if (temp >= 55)
+		customcurrent == 1350;
+	else if (temp >= 20)
+		customcurrent == 1500;
+	}
+#endif
+ 
 reschedule:
 	queue_delayed_work(system_power_efficient_wq, &check_temp_work, msecs_to_jiffies(1000));
 }
@@ -301,15 +319,8 @@ static int set_temp_safety(const char *val, const struct kernel_param *kp)
 		return -EINVAL;
 	if (i < 0 || i > 1)
 		return -EINVAL;
-#ifdef CONFIG_AiO_HotPlug
-    if (AiO_HotPlug)
-		return -EINVAL;
-#endif		
-#ifdef CONFIG_ALUCARD_HOTPLUG
-	if (alucard)
-	   return -EINVAL; 
-#endif
-
+	if (AiO_HotPlug)
+		return -EINVAL;	
 	ret = param_set_int(val, kp);
     if (!TEMP_SAFETY)
 	{
