@@ -27,7 +27,7 @@ mkdir -p /tmp/anykernel;
 cd /tmp/anykernel;
 unzip -o "$ZIP";
 ui_print "**********************************";
-ui_print "      Destructive™ XI Kernel";
+ui_print "      Destructive™ XII Kernel";
 ui_print "";
 ui_print "       Bring Up Destruction"
 ui_print "**********************************";

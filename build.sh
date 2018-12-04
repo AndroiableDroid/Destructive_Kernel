@@ -66,7 +66,7 @@ export KBUILD_BUILD_USER="Faraz"
 export KBUILD_BUILD_HOST="TimeMachine"
 export USE_CCACHE=1
 BUILD_DIR=$KERNEL_DIR/build
-VERSION="XI"
+VERSION="XII"
 DATE=$(date -u +%Y%m%d-%H%M)
 ZIP_NAME=Destructive-$DEVICE-$VERSION-$DATE
 
@@ -78,7 +78,7 @@ echo -e "****************************************************"
 echo -e "$nocol"
 rm -f $KERN_IMG
 make destructive_defconfig
-make -j4
+make $J
 echo "$cyan Making dt.img"
 echo -e "$nocol"
 $DTBTOOL -2 -o $KERNEL_DIR/arch/arm64/boot/dt.img -s 2048 -p $KERNEL_DIR/scripts/dtc/ $KERNEL_DIR/arch/arm/boot/dts/
