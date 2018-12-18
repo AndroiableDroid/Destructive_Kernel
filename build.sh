@@ -18,7 +18,7 @@
 #
 KERNEL_DIR=$PWD
 KERN_IMG=$KERNEL_DIR/arch/arm64/boot/Image.gz
-DTBTOOL=$KERNEL_DIR/tools/dtbToolCM
+DTBTOOL=$KERNEL_DIR/dtbToolLineage
 BUILD_START=$(date +"%s")
 blue='\033[0;34m'
 cyan='\033[0;36m'

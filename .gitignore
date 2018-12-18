@@ -152,3 +152,4 @@ dkms.conf
 out/
 arch/arm64/boot/dt.img
 build/dt_o/dt.img
+*.dtb

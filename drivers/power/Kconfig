@@ -622,15 +622,6 @@ config MSM_BCL_PERIPHERAL_CTL
 	  provides routines to configure and monitor the BCL
 	  PMIC peripheral.
 
-config TEST_ONLY
-        bool "test driver different flag"
-		help
-		    make macro CONFIG_TEST_ONLY WORKED
-
-config TESTPLUS_ONLY
-        bool "testplus driver different flag "
-		help
-		    make macro CONFIG_TESTPLUS_ONLY WORKED
 source "drivers/power/reset/Kconfig"
 
 endif # POWER_SUPPLY
