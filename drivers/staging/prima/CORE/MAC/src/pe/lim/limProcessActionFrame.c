@@ -1385,7 +1385,8 @@ __limProcessAddBAReq( tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo,tpPESession ps
 
     psessionEntry->amsduSupportedInBA = frmAddBAReq.AddBAParameterSet.amsduSupported;
 
-    pSta = dphLookupHashEntry( pMac, pHdr->sa, &aid, &psessionEntry->dph.dphHashTable );
+    pSta = dphLookupHashEntry(pMac, pHdr->sa, &aid,
+                              &psessionEntry->dph.dphHashTable);
     if( pSta == NULL )
     {
         limLog( pMac, LOGE,
@@ -1659,9 +1660,9 @@ tANI_U8 *pBody;
     }
     if (0 == frmAddBARsp.AddBAParameterSet.bufferSize)
         frmAddBARsp.AddBAParameterSet.bufferSize = val;
-    else
+    else{
         frmAddBARsp.AddBAParameterSet.bufferSize =
-                    VOS_MIN(val, frmAddBARsp.AddBAParameterSet.bufferSize);
+                    VOS_MIN(val, frmAddBARsp.AddBAParameterSet.bufferSize);}
         limLog( pMac, LOG1,
             FL( "ADDBA RSP  Buffsize = %d" ),
             frmAddBARsp.AddBAParameterSet.bufferSize);

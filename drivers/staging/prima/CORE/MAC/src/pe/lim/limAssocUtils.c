@@ -2758,23 +2758,39 @@ limDelSta(
         pDelStaParams->respReqd = 0;
     else
     {
-        //when limDelSta is called from processSmeAssocCnf then mlmState is already set properly.
-        if(eLIM_MLM_WT_ASSOC_DEL_STA_RSP_STATE != GET_LIM_STA_CONTEXT_MLM_STATE(pStaDs))
-        {
-            MTRACE(macTrace(pMac, TRACE_CODE_MLM_STATE, psessionEntry->peSessionId, eLIM_MLM_WT_DEL_STA_RSP_STATE));
-            SET_LIM_STA_CONTEXT_MLM_STATE(pStaDs, eLIM_MLM_WT_DEL_STA_RSP_STATE);
-        }
-        if ( (eLIM_STA_ROLE == GET_LIM_SYSTEM_ROLE(psessionEntry)) || 
-             (eLIM_BT_AMP_STA_ROLE == GET_LIM_SYSTEM_ROLE(psessionEntry)) )
-        {
-            MTRACE(macTrace(pMac, TRACE_CODE_MLM_STATE, psessionEntry->peSessionId, eLIM_MLM_WT_DEL_STA_RSP_STATE));
+        if (pStaDs->staType != STA_ENTRY_TDLS_PEER) {
+              /**
+               * when limDelSta is called from processSmeAssocCnf
+               * then mlmState is already set properly.
+               */
+              if(eLIM_MLM_WT_ASSOC_DEL_STA_RSP_STATE !=
+                 GET_LIM_STA_CONTEXT_MLM_STATE(pStaDs)) {
+                    MTRACE(macTrace
+                           (pMac, TRACE_CODE_MLM_STATE,
+                           psessionEntry->peSessionId,
+                           eLIM_MLM_WT_DEL_STA_RSP_STATE));
+                    SET_LIM_STA_CONTEXT_MLM_STATE(pStaDs,
+                           eLIM_MLM_WT_DEL_STA_RSP_STATE);
+              }
+             if ((eLIM_STA_ROLE ==
+                  GET_LIM_SYSTEM_ROLE(psessionEntry)) ||
+                 (eLIM_BT_AMP_STA_ROLE ==
+                  GET_LIM_SYSTEM_ROLE(psessionEntry))) {
+                       MTRACE(macTrace(pMac, TRACE_CODE_MLM_STATE,
+                                       psessionEntry->peSessionId,
+                                       eLIM_MLM_WT_DEL_STA_RSP_STATE));
 
-            psessionEntry->limMlmState = eLIM_MLM_WT_DEL_STA_RSP_STATE; 
-    
+                       psessionEntry->limMlmState =
+                               eLIM_MLM_WT_DEL_STA_RSP_STATE;
+             }
+
         }
-        pDelStaParams->respReqd = 1;
-        //we need to defer the message until we get the response back from HAL.
+        /**
+         * we need to defer the message until we get the
+         * response back from HAL.
+         */
         SET_LIM_PROCESS_DEFD_MESGS(pMac, false);
+        pDelStaParams->respReqd = 1;
     }
 
     /* Update PE session ID*/
@@ -4090,7 +4106,7 @@ tSirRetStatus limStaSendAddBssPreAssoc( tpAniSirGlobal pMac, tANI_U8 updateEntry
         retCode = eSIR_MEM_ALLOC_FAILED;
         goto returnFailure;
     }
-    
+
     vos_mem_set((tANI_U8 *) pAddBssParams, sizeof( tAddBssParams ), 0);
 
 
@@ -4099,8 +4115,8 @@ tSirRetStatus limStaSendAddBssPreAssoc( tpAniSirGlobal pMac, tANI_U8 updateEntry
                             GET_IE_LEN_IN_BSS(bssDescription->length),
                             pBeaconStruct );
 
-    if(pMac->lim.gLimProtectionControl != WNI_CFG_FORCE_POLICY_PROTECTION_DISABLE)
-        limDecideStaProtectionOnAssoc(pMac, pBeaconStruct, psessionEntry);
+    if(pMac->lim.gLimProtectionControl != WNI_CFG_FORCE_POLICY_PROTECTION_DISABLE){
+        limDecideStaProtectionOnAssoc(pMac, pBeaconStruct, psessionEntry);}
         vos_mem_copy(pAddBssParams->bssId, bssDescription->bssId,
                      sizeof(tSirMacAddr));
 
@@ -4122,7 +4138,7 @@ tSirRetStatus limStaSendAddBssPreAssoc( tpAniSirGlobal pMac, tANI_U8 updateEntry
     pAddBssParams->operMode = BSS_OPERATIONAL_MODE_STA;
 
     pAddBssParams->beaconInterval = bssDescription->beaconInterval;
-    
+
     pAddBssParams->dtimPeriod = pBeaconStruct->tim.dtimPeriod;
     pAddBssParams->updateBss = updateEntry;
 
@@ -4138,7 +4154,7 @@ tSirRetStatus limStaSendAddBssPreAssoc( tpAniSirGlobal pMac, tANI_U8 updateEntry
                  pBeaconStruct->supportedRates.rate, pBeaconStruct->supportedRates.numRates);
 
     pAddBssParams->nwType = bssDescription->nwType;
-    
+
     pAddBssParams->shortSlotTimeSupported = (tANI_U8)pBeaconStruct->capabilityInfo.shortSlotTime; 
     pAddBssParams->llaCoexist = (tANI_U8) psessionEntry->beaconParams.llaCoexist;
     pAddBssParams->llbCoexist = (tANI_U8) psessionEntry->beaconParams.llbCoexist;
