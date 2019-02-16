@@ -385,6 +385,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-switch-unreachable \
 		   -Wno-shift-overflow \
 		   -Wno-misleading-indentation \
+		   -ffast-math -funroll-loops \
 		   -fno-delete-null-pointer-checks \
 		   -std=gnu89
 
