@@ -5,13 +5,13 @@ modpost-objs	:= modpost.o file2alias.o sumversion.o
 
 devicetable-offsets-file := devicetable-offsets.h
 
-# We use internal kbuild rules to avoid the "is up to date" message from make	
-scripts/mod/devicetable-offsets.s: scripts/mod/devicetable-offsets.c FORCE	
-	$(Q)mkdir -p $(dir $@)	
-	$(call if_changed_dep,cc_s_c)
+# We use internal kbuild rules to avoid the "is up to date" message from make
+#scripts/mod/devicetable-offsets.s: scripts/mod/devicetable-offsets.c FORCE
+#	$(Q)mkdir -p $(dir $@)
+#	$(call if_changed_dep,cc_s_c)
 
-$(obj)/$(devicetable-offsets-file): scripts/mod/devicetable-offsets.s
-	$(call cmd,offsets)
+$(obj)/$(devicetable-offsets-file): $(obj)/devicetable-offsets.s FORCE
+	$(call filechk,offsets,__DEVICETABLE_OFFSETS_H__)
 
 targets += $(devicetable-offsets-file)
 
