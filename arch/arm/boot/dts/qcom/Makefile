@@ -92,8 +92,7 @@ dtb-$(CONFIG_ARCH_MSM8916) += msm8916-t86519a1.dtb
 else ifeq ($(CONFIG_MACH_YULONG_MSM8939),y)
 dtb-$(CONFIG_ARCH_MSM8916) += msm8939-cp8675-i01-p0.dtb
 else ifeq ($(CONFIG_TEST_ONLY),y)
-dtb-$(CONFIG_ARCH_MSM8916) += test01a-msm8939-qrd-skuk.dtb \
-	test01a-msm8939-v3.0-qrd-skuk.dtb
+dtb-$(CONFIG_ARCH_MSM8916) += test01a-msm8939-qrd-skuk.dtb
 else ifeq ($(CONFIG_TESTPLUS_ONLY),y)
 dtb-$(CONFIG_ARCH_MSM8916) += test01a-msm8939-qrd-skuk.dtb \
 	test01a-msm8939-v3.0-qrd-skuk.dtb
