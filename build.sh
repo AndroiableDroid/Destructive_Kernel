@@ -54,7 +54,7 @@ if [[ -d ${Toolchain} ]]; then
 		rm -rf ${Toolchain}
 	fi
 else
-	git clone --depth=1 https://github.com/TeamODonors/toolchain -b ${TOOL_VER} $Toolchain
+	git clone --depth=1 https://github.com/AndroiableDroid/toolchain -b ${TOOL_VER} $Toolchain
 fi
 }
 
