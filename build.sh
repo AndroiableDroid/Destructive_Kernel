@@ -73,7 +73,7 @@ echo "             Compiling Nichrome kernel        "
 echo -e "****************************************************"
 echo -e "$nocol"
 rm -f $KERN_IMG
-make test01a_msm_defconfig
+make mobee01a_defconfig
 make $J
 echo "$cyan Making dt.img"
 echo -e "$nocol"
