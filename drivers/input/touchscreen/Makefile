@@ -101,4 +101,3 @@ obj-$(CONFIG_TOUCHSCREEN_MSG2XXX)	+= msg2xxx.o
 obj-$(CONFIG_MACH_YULONG)		+= touchscreen_yl.o
 obj-$(CONFIG_TESTPLUS_ONLY)            += melfas_mip4_testplus/
 obj-$(CONFIG_TEST_ONLY)                += melfas_mip4_test/
-ccflags-y += -Wno-array-bounds
