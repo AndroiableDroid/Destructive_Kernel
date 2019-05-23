@@ -17,9 +17,8 @@
 #
 # Please maintain this if you use this script or any part of it
 #
-KERNEL_DIR=$PWD
-KERN_IMG=$KERNEL_DIR/arch/arm64/boot/Image
-DTBTOOL=$KERNEL_DIR/tools/dtbToolCM
+KERNEL_DIR=$PWD/out
+KERN_IMG=$KERNEL_DIR/arch/arm64/boot/Image.gz-dtb
 BUILD_START=$(date +"%s")
 blue='\033[0;34m'
 cyan='\033[0;36m'
@@ -31,10 +30,12 @@ purple='\e[0;35m'
 white='\e[0;37m'
 DEVICE="LS-5015"
 J="-j$(grep -c ^processor /proc/cpuinfo)"
-make $J clean mrproper
+mkdir -p $KERNEL_DIR
+#make $J clean mrproper
+#make $J O=$KERNEL_DIR clean mrproper
 
 # Get Toolchain
-Toolchain=$KERNEL_DIR/../Toolchain
+Toolchain=$(pwd)/../Toolchain
 TOOL_VER="linaro"
 
 function TC() {
@@ -45,7 +46,7 @@ if [[ -d ${Toolchain} ]]; then
 			git fetch origin
                         git reset --hard @{u}
                         git clean -fxd > /dev/null 2>&1
-                        cd ${KERNEL_DIR}
+                        cd ${KERNEL_DIR}/..
 	else
 		rm -rf ${Toolchain}
 	fi
@@ -61,7 +62,7 @@ export SUBARCH=arm64
 export KBUILD_BUILD_USER="Faraz"
 export KBUILD_BUILD_HOST="TimeMachine"
 export USE_CCACHE=1
-BUILD_DIR=$KERNEL_DIR/build
+BUILD_DIR=$(pwd)/build
 VERSION="XII"
 DATE=$(date -u +%Y%m%d-%H%M)
 ZIP_NAME=Destructive-$DEVICE-$VERSION-$DATE
@@ -73,11 +74,8 @@ echo "             Compiling Destructive kernel        "
 echo -e "****************************************************"
 echo -e "$nocol"
 rm -f $KERN_IMG
-make mobee01a_defconfig
-make $J
-echo "$cyan Making dt.img"
-echo -e "$nocol"
-$DTBTOOL -2 -o $KERNEL_DIR/arch/arm64/boot/dt.img -s 2048 -p $KERNEL_DIR/scripts/dtc/ $KERNEL_DIR/arch/arm/boot/dts/
+make O=$KERNEL_DIR mobee01a_defconfig
+make O=$KERNEL_DIR $J
 if ! [ -a $KERN_IMG ];
 then
 echo -e "$red Kernel Compilation failed! Fix the errors! $nocol"
@@ -89,17 +87,16 @@ make_zip
 
 make_zip ()
 {
-if [[ $( ls ${KERNEL_DIR}/arch/arm64/boot/Image 2>/dev/null | wc -l ) != "0" ]]; then
+if [[ $( ls $KERN_IMG 2>/dev/null | wc -l ) != "0" ]]; then
 	BUILD_RESULT_STRING="BUILD SUCCESSFUL"
 	echo "Making Zip"
 	rm $BUILD_DIR/*.zip
 	rm $BUILD_DIR/zImage
-	cp $KERNEL_DIR/arch/arm64/boot/Image $BUILD_DIR/zImage
-        cp $KERNEL_DIR/arch/arm64/boot/dt.img $BUILD_DIR/dt.img
+	cp $KERN_IMG $BUILD_DIR/zImage
 	cd $BUILD_DIR
 	zip -r ${ZIP_NAME}.zip *
-	cd $KERNEL_DIR
-	rm -rf $KERNEL_DIR/out
+	cd $KERNEL_DIR/..
+	rm -rf $KERNEL_DIR
 	rm $BUILD_DIR/zImage
 else
     BUILD_RESULT_STRING="BUILD FAILED"
@@ -108,7 +105,7 @@ fi
 
 case $1 in
 clean)
-make ARCH=arm64 $J clean mrproper
+make ARCH=arm64 O=$KERNEL_DIR $J clean mrproper
 ;;
 *)
 TC
