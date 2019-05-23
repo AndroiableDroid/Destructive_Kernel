@@ -62,14 +62,14 @@ export KBUILD_BUILD_USER="Faraz"
 export KBUILD_BUILD_HOST="TimeMachine"
 export USE_CCACHE=1
 BUILD_DIR=$KERNEL_DIR/build
-VERSION="X4"
+VERSION="XII"
 DATE=$(date -u +%Y%m%d-%H%M)
-ZIP_NAME=Nichrome-$DEVICE-$VERSION-$DATE
+ZIP_NAME=Destructive-$DEVICE-$VERSION-$DATE
 
 compile_kernel ()
 {
 echo -e "$cyan****************************************************"
-echo "             Compiling Nichrome kernel        "
+echo "             Compiling Destructive kernel        "
 echo -e "****************************************************"
 echo -e "$nocol"
 rm -f $KERN_IMG
