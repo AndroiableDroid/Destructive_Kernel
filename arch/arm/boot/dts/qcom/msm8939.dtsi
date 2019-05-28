@@ -395,6 +395,12 @@
 		qcom,freq-mitigation-control-mask = <0xFF>;
 	};
 
+	qcom,msm-thermal-simple {
+		compatible = "qcom,msm-thermal-simple";
+		qcom,thermal-vadc = <&pm8916_vadc>;
+		qcom,adc-channel = <54>; /* dev_harsh1998: Use pa_therm0 for msm8916 or simply 0x36 to decimal */
+	};
+
 	jtag_fuse: jtagfuse@5e01c {
 		compatible = "qcom,jtag-fuse";
 		reg = <0x5e01c 0x8>;
