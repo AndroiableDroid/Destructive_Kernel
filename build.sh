@@ -1,4 +1,3 @@
-
 #
 # Copyright © 2016, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
 # Copyright © 2017, Ritesh Saxena <riteshsax007@gmail.com>
@@ -31,6 +30,7 @@ white='\e[0;37m'
 DEVICE="LS-5015"
 J="-j$(grep -c ^processor /proc/cpuinfo)"
 mkdir -p $KERNEL_DIR
+COMPILER=""
 #make $J clean mrproper
 #make $J O=$KERNEL_DIR clean mrproper
 
@@ -55,8 +55,14 @@ else
 fi
 }
 
+find_compiler()
+{
+	COMPILER="$(find $Toolchain/bin/ | grep -oE '[^ ]+gcc' | grep -o '[^/]*$' | sed -e 's:\-gcc:\-:' | head -1)";
+}
+
 # Modify the following variable if you want to build
-export CROSS_COMPILE=$Toolchain/bin/aarch64-linaro-linux-gnu-
+find_compiler
+export CROSS_COMPILE=$Toolchain/bin/$COMPILER
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER="Faraz"
